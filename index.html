@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f1923">
+<meta name="description" content="Sistema de Gestão para Pequenos Negócios">
+<title>GestãoPRO</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  /* ─── RESET & BASE ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:        #0b1219;
+    --surface:   #111c27;
+    --surface2:  #162232;
+    --border:    #1e3347;
+    --accent:    #00d4aa;
+    --accent2:   #f59e0b;
+    --accent3:   #ef4444;
+    --text:      #e8f0f7;
+    --text2:     #7a9ab5;
+    --text3:     #4a6a85;
+    --radius:    12px;
+    --radius-lg: 20px;
+    --shadow:    0 8px 32px rgba(0,0,0,.45);
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+  html { font-size: 15px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+  input, select, textarea, button { font-family: var(--font-body); }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ─── UTILITY ─── */
+  .hidden { display: none !important; }
+  .fade-in { animation: fadeIn .35s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes slideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+
+  /* ─── TOAST ─── */
+  #toast-container {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; gap: 8px; z-index: 9999; pointer-events: none;
+  }
+  .toast {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 20px; border-radius: 40px;
+    font-size: .85rem; box-shadow: var(--shadow);
+    animation: slideUp .3s ease; white-space: nowrap;
+  }
+  .toast.success { border-color: var(--accent); color: var(--accent); }
+  .toast.error   { border-color: var(--accent3); color: var(--accent3); }
+
+  /* ─── LOGIN SCREEN ─── */
+  #screen-login {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100dvh; padding: 24px;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,170,.12) 0%, transparent 70%),
+                var(--bg);
+  }
+  .login-card {
+    width: 100%; max-width: 400px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 40px 32px;
+    box-shadow: var(--shadow); animation: slideUp .45s ease;
+  }
+  .login-logo {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    margin-bottom: 32px;
+  }
+  .login-logo .logo-img {
+    width: 72px; height: 72px; border-radius: 20px;
+    object-fit: cover; background: var(--surface2);
+    border: 2px solid var(--border);
+  }
+  .login-logo h1 {
+    font-family: var(--font-head); font-size: 1.6rem; font-weight: 800;
+    color: var(--text); letter-spacing: -.02em; text-align: center;
+  }
+  .login-logo .subtitle { font-size: .8rem; color: var(--text2); text-align: center; }
+
+  /* ─── FORMS ─── */
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: .8rem; color: var(--text2); margin-bottom: 6px; letter-spacing: .04em; text-transform: uppercase; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 12px 16px; border-radius: var(--radius);
+    font-size: .95rem; transition: border-color .2s, box-shadow .2s; outline: none;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,170,.12);
+  }
+  .form-group select option { background: var(--surface2); }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 24px; border-radius: var(--radius); font-size: .9rem;
+    font-weight: 600; cursor: pointer; border: none; transition: all .2s; letter-spacing: .01em;
+  }
+  .btn-primary {
+    background: var(--accent); color: #0b1219;
+    box-shadow: 0 4px 20px rgba(0,212,170,.25);
+  }
+  .btn-primary:hover { background: #00efc0; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,212,170,.35); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: rgba(239,68,68,.15); color: var(--accent3); border: 1px solid rgba(239,68,68,.3); }
+  .btn-danger:hover { background: rgba(239,68,68,.25); }
+  .btn-warn { background: rgba(245,158,11,.15); color: var(--accent2); border: 1px solid rgba(245,158,11,.3); }
+  .btn-warn:hover { background: rgba(245,158,11,.25); }
+  .btn-full { width: 100%; }
+  .btn-sm { padding: 7px 14px; font-size: .8rem; }
+  .btn-icon { padding: 10px; }
+  .btn:active { transform: scale(.97); }
+
+  /* ─── APP SHELL ─── */
+  #app-shell { display: flex; flex-direction: column; min-height: 100dvh; }
+  #top-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11,18,25,.92); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px; display: flex; align-items: center; gap: 12px;
+  }
+  #top-bar .logo-wrap { display: flex; align-items: center; gap: 10px; flex: 1; }
+  #top-bar .logo-wrap img {
+    width: 36px; height: 36px; border-radius: 10px;
+    object-fit: cover; border: 1px solid var(--border);
+  }
+  #top-bar .company-name { font-family: var(--font-head); font-weight: 700; font-size: 1rem; }
+  #top-bar .operator-badge {
+    font-size: .72rem; color: var(--text2); background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px;
+  }
+
+  /* ─── BOTTOM NAV ─── */
+  #bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(11,18,25,.95); backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-around; padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 6px 12px; border-radius: var(--radius); cursor: pointer;
+    font-size: .68rem; color: var(--text3); transition: all .2s; flex: 1;
+    border: none; background: none;
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-item .nav-icon { font-size: 1.3rem; line-height: 1; }
+
+  /* ─── MAIN CONTENT ─── */
+  #main-content { flex: 1; padding: 16px 16px 90px; max-width: 700px; margin: 0 auto; width: 100%; }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header { margin-bottom: 20px; }
+  .section-header h2 { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; }
+  .section-header p  { font-size: .85rem; color: var(--text2); margin-top: 4px; }
+
+  /* ─── DASHBOARD ─── */
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .dash-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 18px 16px;
+  }
+  .dash-card.full { grid-column: 1/-1; }
+  .dash-card .card-label { font-size: .72rem; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .dash-card .card-value { font-family: var(--font-head); font-size: 1.5rem; font-weight: 700; }
+  .dash-card .card-value.green  { color: var(--accent); }
+  .dash-card .card-value.yellow { color: var(--accent2); }
+  .dash-card .card-value.red    { color: var(--accent3); }
+  .dash-card .card-sub { font-size: .75rem; color: var(--text3); margin-top: 4px; }
+
+  .period-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .period-tab {
+    padding: 6px 14px; border-radius: 20px; font-size: .8rem; cursor: pointer;
+    border: 1px solid var(--border); background: transparent; color: var(--text2);
+    transition: all .2s;
+  }
+  .period-tab.active { background: var(--accent); color: #0b1219; border-color: var(--accent); font-weight: 600; }
+
+  .sales-list { display: flex; flex-direction: column; gap: 8px; }
+  .sale-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sale-item .sale-info .sale-name { font-weight: 500; font-size: .9rem; }
+  .sale-item .sale-info .sale-date { font-size: .75rem; color: var(--text2); }
+  .sale-item .sale-values { text-align: right; }
+  .sale-item .sale-revenue { font-family: var(--font-head); font-weight: 700; color: var(--accent); }
+  .sale-item .sale-profit  { font-size: .75rem; color: var(--text2); }
+
+  /* ─── CARDS LIST ─── */
+  .card-list { display: flex; flex-direction: column; gap: 10px; }
+  .item-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 16px;
+    display: flex; align-items: center; gap: 14px;
+    transition: border-color .2s;
+  }
+  .item-card:hover { border-color: var(--accent); }
+  .item-card .item-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+  }
+  .item-card .item-info { flex: 1; min-width: 0; }
+  .item-card .item-name { font-weight: 600; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-card .item-meta { font-size: .78rem; color: var(--text2); margin-top: 2px; }
+  .item-card .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  /* ─── FAB ─── */
+  .fab {
+    position: fixed; bottom: 80px; right: 20px; z-index: 200;
+    width: 54px; height: 54px; border-radius: 16px;
+    background: var(--accent); color: #0b1219;
+    font-size: 1.6rem; border: none; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(0,212,170,.4);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+  }
+  .fab:hover { transform: scale(1.08); }
+  .fab:active { transform: scale(.95); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
+    display: flex; align-items: flex-end; justify-content: center;
+    animation: fadeIn .2s ease;
+  }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0; padding: 28px 24px 40px;
+    width: 100%; max-width: 500px; max-height: 90dvh; overflow-y: auto;
+    animation: slideUp .3s ease;
+  }
+  .modal h3 { font-family: var(--font-head); font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; }
+  .modal-footer { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-footer .btn { flex: 1; }
+
+  /* ─── SETTINGS ─── */
+  .settings-section { margin-bottom: 24px; }
+  .settings-section h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: .08em; }
+  .settings-row {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .settings-row .row-label { font-size: .9rem; }
+  .settings-row .row-sub   { font-size: .78rem; color: var(--text2); }
+
+  /* ─── AVATAR UPLOAD ─── */
+  .avatar-upload { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .avatar-preview {
+    width: 72px; height: 72px; border-radius: 18px;
+    background: var(--surface2); border: 2px dashed var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; overflow: hidden; flex-shrink: 0; cursor: pointer;
+    transition: border-color .2s;
+  }
+  .avatar-preview:hover { border-color: var(--accent); }
+  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ─── SALE SCREEN ─── */
+  .sale-product-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .sale-product-row {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sale-product-row .row-name { flex: 1; font-size: .9rem; font-weight: 500; }
+  .sale-product-row .row-qty { display: flex; align-items: center; gap: 8px; }
+  .qty-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); font-size: 1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all .15s;
+  }
+  .qty-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .qty-display { width: 32px; text-align: center; font-weight: 600; font-size: .9rem; }
+  .sale-product-row .row-subtotal { font-family: var(--font-head); font-size: .9rem; font-weight: 700; color: var(--accent); min-width: 60px; text-align: right; }
+
+  .sale-total-bar {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .sale-total-bar .total-label { font-size: .85rem; color: var(--text2); }
+  .sale-total-bar .total-value { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    text-align: center; padding: 48px 24px; color: var(--text3);
+  }
+  .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: .5; }
+  .empty-state p { font-size: .9rem; }
+
+  /* ─── OPERATOR BANNER ─── */
+  .operator-banner {
+    background: linear-gradient(135deg, rgba(0,212,170,.08), rgba(0,212,170,.03));
+    border: 1px solid rgba(0,212,170,.2);
+    border-radius: var(--radius); padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  }
+  .operator-banner .op-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); animation: pulse 2s infinite;
+  }
+  .operator-banner .op-text { font-size: .85rem; }
+  .operator-banner .op-name { font-weight: 600; color: var(--accent); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (min-width: 480px) {
+    .dash-grid { grid-template-columns: repeat(3, 1fr); }
+    .dash-card.full { grid-column: 1/-1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="screen-login">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="avatar-preview" id="login-logo-preview" onclick="document.getElementById('logo-upload-input').click()">
+        <span id="login-logo-placeholder">🏪</span>
+      </div>
+      <input type="file" id="logo-upload-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event,'login')">
+      <h1 id="login-company-name">Minha Empresa</h1>
+      <span class="subtitle">Sistema de Gestão</span>
+    </div>
+    <div class="form-group">
+      <label>Usuário</label>
+      <input type="text" id="login-user" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- ══════════════ APP SHELL ══════════════ -->
+<div id="app-shell" class="hidden">
+  <!-- TOP BAR -->
+  <div id="top-bar">
+    <div class="logo-wrap">
+      <img id="topbar-logo" src="" alt="Logo" onerror="this.style.display='none'">
+      <span id="topbar-company" class="company-name">Minha Empresa</span>
+    </div>
+    <span id="topbar-operator" class="operator-badge hidden"></span>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main-content"></div>
+
+  <!-- BOTTOM NAV -->
+  <nav id="bottom-nav">
+    <button class="nav-item active" data-screen="dashboard" onclick="navigate('dashboard')">
+      <span class="nav-icon">📊</span>Dashboard
+    </button>
+    <button class="nav-item" data-screen="sales" onclick="navigate('sales')">
+      <span class="nav-icon">🛒</span>Vendas
+    </button>
+    <button class="nav-item" data-screen="products" onclick="navigate('products')">
+      <span class="nav-icon">📦</span>Produtos
+    </button>
+    <button class="nav-item" data-screen="clients" onclick="navigate('clients')">
+      <span class="nav-icon">👥</span>Clientes
+    </button>
+    <button class="nav-item" data-screen="settings" onclick="navigate('settings')">
+      <span class="nav-icon">⚙️</span>Config
+    </button>
+  </nav>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA LAYER  —  localStorage wrapper
+// ══════════════════════════════════════════════
+const DB = {
+  get(k, def) { try { const v = localStorage.getItem('gp_'+k); return v ? JSON.parse(v) : def; } catch { return def; } },
+  set(k, v)   { localStorage.setItem('gp_'+k, JSON.stringify(v)); },
+  keys()      { return Object.keys(localStorage).filter(k=>k.startsWith('gp_')); },
+  nuke()      { DB.keys().forEach(k=>localStorage.removeItem(k)); }
+};
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let state = {
+  screen: 'dashboard',
+  dashPeriod: 'today',
+  saleCart: {}
+};
+
+// Initial data
+function initDefaults() {
+  if (!DB.get('company')) DB.set('company', { name: 'Minha Empresa', logo: '', user: 'admin', pass: 'admin' });
+  if (!DB.get('operator')) DB.set('operator', '');
+  if (!DB.get('clients')) DB.set('clients', []);
+  if (!DB.get('products')) DB.set('products', []);
+  if (!DB.get('sales')) DB.set('sales', []);
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+function toast(msg, type='') {
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 2800);
+}
+
+// ══════════════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════════════
+function doLogin() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const co = DB.get('company');
+  if (user === co.user && pass === co.pass) {
+    document.getElementById('screen-login').classList.add('hidden');
+    document.getElementById('app-shell').classList.remove('hidden');
+    refreshTopBar();
+    navigate('dashboard');
+  } else {
+    toast('Usuário ou senha incorretos', 'error');
+  }
+}
+
+function handleLogoUpload(e, ctx) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const b64 = ev.target.result;
+    const co = DB.get('company'); co.logo = b64; DB.set('company', co);
+    if (ctx === 'login') {
+      const pl = document.getElementById('login-logo-placeholder');
+      if (pl) pl.innerHTML = `<img src="${b64}" style="width:100%;height:100%;object-fit:cover;border-radius:16px">`;
+    }
+    refreshTopBar();
+    toast('Logo atualizado!', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function refreshTopBar() {
+  const co = DB.get('company');
+  document.getElementById('topbar-company').textContent = co.name;
+  const logoEl = document.getElementById('topbar-logo');
+  if (co.logo) { logoEl.src = co.logo; logoEl.style.display = ''; }
+  else logoEl.style.display = 'none';
+  // login screen
+  const lcn = document.getElementById('login-company-name');
+  if (lcn) lcn.textContent = co.name;
+  const llp = document.getElementById('login-logo-placeholder');
+  if (llp && co.logo) llp.innerHTML = `<img src="${co.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:16px">`;
+  // operator
+  const op = DB.get('operator');
+  const ob = document.getElementById('topbar-operator');
+  if (op) { ob.textContent = '👤 ' + op; ob.classList.remove('hidden'); }
+  else ob.classList.add('hidden');
+}
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+function navigate(screen) {
+  state.screen = screen;
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.screen === screen);
+  });
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = '';
+  mc.className = 'fade-in';
+  setTimeout(() => mc.className = '', 400);
+  const fab = document.getElementById('main-fab');
+  if (fab) fab.remove();
+
+  const screens = { dashboard, sales, products, clients, settings };
+  if (screens[screen]) screens[screen]();
+}
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function fmt(v) {
+  return 'R$\u00a0' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function startOfDay(d)      { const x=new Date(d); x.setHours(0,0,0,0); return x; }
+function startOfWeek(d)     { const x=new Date(d); x.setDate(x.getDate()-x.getDay()); x.setHours(0,0,0,0); return x; }
+function startOfFortnight(d){ const x=new Date(d); x.setDate(x.getDate()<=15?1:16); x.setHours(0,0,0,0); return x; }
+function startOfMonth(d)    { const x=new Date(d); x.setDate(1); x.setHours(0,0,0,0); return x; }
+function startOfYear(d)     { const x=new Date(d); x.setMonth(0,1); x.setHours(0,0,0,0); return x; }
+
+function filterSalesByPeriod(sales, period) {
+  const now = new Date();
+  let start;
+  if (period==='today')      start = startOfDay(now);
+  else if (period==='week')  start = startOfWeek(now);
+  else if (period==='15days')start = startOfFortnight(now);
+  else if (period==='month') start = startOfMonth(now);
+  else                       start = startOfYear(now);
+  return sales.filter(s => new Date(s.date) >= start);
+}
+
+function calcSales(sales) {
+  let revenue = 0, cost = 0;
+  sales.forEach(s => { revenue += s.revenue || 0; cost += s.cost || 0; });
+  return { revenue, cost, profit: revenue - cost };
+}
+
+// ══════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════
+function dashboard() {
+  const mc = document.getElementById('main-content');
+  const op = DB.get('operator');
+  const allSales = DB.get('sales', []);
+  const periods = [
+    { key:'today',  label:'Hoje' },
+    { key:'week',   label:'Semana' },
+    { key:'15days', label:'Quinzena' },
+    { key:'month',  label:'Mês' },
+    { key:'year',   label:'Ano' },
+  ];
+
+  function render() {
+    const filtered = filterSalesByPeriod(allSales, state.dashPeriod);
+    const { revenue, cost, profit } = calcSales(filtered);
+    mc.innerHTML = `
+      <div class="section-header">
+        <h2>Dashboard</h2>
+        <p>Visão geral do seu negócio</p>
+      </div>
+      ${op ? `<div class="operator-banner"><div class="op-dot"></div><span class="op-text">Operador do dia: <span class="op-name">${op}</span></span></div>` : ''}
+      <div class="period-tabs">
+        ${periods.map(p=>`<button class="period-tab ${state.dashPeriod===p.key?'active':''}" onclick="state.dashPeriod='${p.key}';dashboard()">${p.label}</button>`).join('')}
+      </div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="card-label">Receita</div>
+          <div class="card-value">${fmt(revenue)}</div>
+          <div class="card-sub">${filtered.length} venda(s)</div>
+        </div>
+        <div class="dash-card">
+          <div class="card-label">Custo</div>
+          <div class="card-value yellow">${fmt(cost)}</div>
+          <div class="card-sub">total do período</div>
+        </div>
+        <div class="dash-card full">
+          <div class="card-label">Lucro</div>
+          <div class="card-value ${profit>=0?'green':'red'}">${fmt(profit)}</div>
+          <div class="card-sub">margem: ${revenue>0?((profit/revenue)*100).toFixed(1)+'%':'—'}</div>
+        </div>
+      </div>
+      <div class="section-header"><h2 style="font-size:1rem">Últimas Vendas</h2></div>
+      ${filtered.length===0 ? `<div class="empty-state"><div class="empty-icon">📉</div><p>Nenhuma venda no período selecionado.</p></div>` :
+        `<div class="sales-list">${[...filtered].reverse().slice(0,15).map(s=>`
+          <div class="sale-item">
+            <div class="sale-info">
+              <div class="sale-name">${s.clientName || 'Venda direta'}</div>
+              <div class="sale-date">${fmtDate(s.date)}</div>
+            </div>
+            <div class="sale-values">
+              <div class="sale-revenue">${fmt(s.revenue)}</div>
+              <div class="sale-profit">lucro: ${fmt(s.revenue - s.cost)}</div>
+            </div>
+          </div>`).join('')}</div>`}
+    `;
+  }
+  render();
+}
+
+// ══════════════════════════════════════════════
+//  SALES
+// ══════════════════════════════════════════════
+function sales() {
+  const mc = document.getElementById('main-content');
+  const products = DB.get('products', []);
+  const clients = DB.get('clients', []);
+  state.saleCart = {};
+
+  function renderSales() {
+    let total = 0, totalCost = 0;
+    Object.entries(state.saleCart).forEach(([id, qty]) => {
+      const p = products.find(x=>x.id===id); if (!p) return;
+      total += p.price * qty;
+      totalCost += p.cost * qty;
+    });
+
+    mc.innerHTML = `
+      <div class="section-header">
+        <h2>Nova Venda</h2>
+        <p>Selecione produtos e finalize</p>
+      </div>
+      <div class="form-group">
+        <label>Cliente (opcional)</label>
+        <select id="sale-client">
+          <option value="">— Venda direta —</option>
+          ${clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+        </select>
+      </div>
+      ${products.length===0 ? `<div class="empty-state"><div class="empty-icon">📦</div><p>Cadastre produtos antes de realizar vendas.</p></div>` : `
+      <div class="sale-product-list">
+        ${products.map(p=>{
+          const qty = state.saleCart[p.id] || 0;
+          const unit = p.unit==='kg'?'kg':p.unit==='lt'?'lt':'un';
+          return `<div class="sale-product-row">
+            <div class="row-name">${p.name} <small style="color:var(--text3)">(${unit})</small></div>
+            <div class="row-qty">
+              <button class="qty-btn" onclick="changeCart('${p.id}',-1)">−</button>
+              <span class="qty-display">${qty}</span>
+              <button class="qty-btn" onclick="changeCart('${p.id}',1)">+</button>
+            </div>
+            <div class="row-subtotal">${fmt(p.price * qty)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="sale-total-bar">
+        <span class="total-label">Total da venda</span>
+        <span class="total-value">${fmt(total)}</span>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="finishSale(${total}, ${totalCost})" ${total===0?'disabled style="opacity:.4"':''}>
+        ✓ Finalizar Venda
+      </button>`}
+    `;
+  }
+
+  window.changeCart = (id, delta) => {
+    state.saleCart[id] = Math.max(0, (state.saleCart[id]||0) + delta);
+    renderSales();
+  };
+
+  window.finishSale = (revenue, cost) => {
+    if (revenue === 0) return;
+    const clientSel = document.getElementById('sale-client');
+    const clientId = clientSel ? clientSel.value : '';
+    const client = clients.find(c=>c.id===clientId);
+    const sales = DB.get('sales', []);
+    sales.push({ id: genId(), date: new Date().toISOString(), revenue, cost, clientId, clientName: client?.name || '' });
+    DB.set('sales', sales);
+    state.saleCart = {};
+    toast('Venda registrada!', 'success');
+    renderSales();
+  };
+
+  renderSales();
+}
+
+// ══════════════════════════════════════════════
+//  PRODUCTS
+// ══════════════════════════════════════════════
+function products() {
+  const mc = document.getElementById('main-content');
+  const prods = DB.get('products', []);
+  const unitLabel = { un: '📦 Unidade', kg: '⚖️ Kg', lt: '💧 Litros' };
+
+  mc.innerHTML = `
+    <div class="section-header">
+      <h2>Produtos</h2>
+      <p>${prods.length} produto(s) cadastrado(s)</p>
+    </div>
+    ${prods.length===0 ? `<div class="empty-state"><div class="empty-icon">📦</div><p>Nenhum produto cadastrado. Toque + para adicionar.</p></div>` :
+      `<div class="card-list">${prods.map(p=>`
+        <div class="item-card">
+          <div class="item-icon">${p.unit==='kg'?'⚖️':p.unit==='lt'?'💧':'📦'}</div>
+          <div class="item-info">
+            <div class="item-name">${p.name}</div>
+            <div class="item-meta">${unitLabel[p.unit]} · Venda: ${fmt(p.price)} · Custo: ${fmt(p.cost)}</div>
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-secondary btn-sm btn-icon" title="Editar" onclick="editProduct('${p.id}')">✏️</button>
+            <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="deleteProduct('${p.id}')">🗑️</button>
+          </div>
+        </div>`).join('')}</div>`}
+  `;
+
+  // FAB
+  addFab(() => openProductModal());
+
+  window.editProduct = id => {
+    const p = prods.find(x=>x.id===id);
+    if (p) openProductModal(p);
+  };
+  window.deleteProduct = id => {
+    if (!confirm('Excluir este produto?')) return;
+    const updated = prods.filter(x=>x.id!==id);
+    DB.set('products', updated);
+    toast('Produto removido', 'error');
+    products();
+  };
+}
+
+function openProductModal(prod={}) {
+  const isEdit = !!prod.id;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>${isEdit?'Editar':'Novo'} Produto</h3>
+      <div class="form-group"><label>Nome do Produto</label>
+        <input type="text" id="pm-name" placeholder="Ex: Água mineral 500ml" value="${prod.name||''}">
+      </div>
+      <div class="form-group"><label>Unidade de Medida</label>
+        <select id="pm-unit">
+          <option value="un" ${prod.unit==='un'?'selected':''}>Unidade</option>
+          <option value="kg" ${prod.unit==='kg'?'selected':''}>Kg (quilograma)</option>
+          <option value="lt" ${prod.unit==='lt'?'selected':''}>Litros</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Preço de Venda (R$)</label>
+        <input type="number" id="pm-price" step="0.01" min="0" placeholder="0,00" value="${prod.price||''}">
+      </div>
+      <div class="form-group"><label>Custo (R$)</label>
+        <input type="number" id="pm-cost" step="0.01" min="0" placeholder="0,00" value="${prod.cost||''}">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveProduct('${prod.id||''}')">Salvar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
+}
+
+window.saveProduct = (editId) => {
+  const name  = document.getElementById('pm-name').value.trim();
+  const unit  = document.getElementById('pm-unit').value;
+  const price = parseFloat(document.getElementById('pm-price').value) || 0;
+  const cost  = parseFloat(document.getElementById('pm-cost').value) || 0;
+  if (!name) { toast('Informe o nome do produto', 'error'); return; }
+  const prods = DB.get('products', []);
+  if (editId) {
+    const i = prods.findIndex(x=>x.id===editId);
+    if (i>-1) prods[i] = { ...prods[i], name, unit, price, cost };
+  } else {
+    prods.push({ id: genId(), name, unit, price, cost });
+  }
+  DB.set('products', prods);
+  document.querySelector('.modal-overlay')?.remove();
+  toast(editId?'Produto atualizado!':'Produto cadastrado!', 'success');
+  products();
+};
+
+// ══════════════════════════════════════════════
+//  CLIENTS
+// ══════════════════════════════════════════════
+function clients() {
+  const mc = document.getElementById('main-content');
+  const cls = DB.get('clients', []);
+
+  mc.innerHTML = `
+    <div class="section-header">
+      <h2>Clientes</h2>
+      <p>${cls.length} cliente(s) cadastrado(s)</p>
+    </div>
+    ${cls.length===0 ? `<div class="empty-state"><div class="empty-icon">👥</div><p>Nenhum cliente cadastrado. Toque + para adicionar.</p></div>` :
+      `<div class="card-list">${cls.map(c=>`
+        <div class="item-card">
+          <div class="item-icon">👤</div>
+          <div class="item-info">
+            <div class="item-name">${c.name}</div>
+            <div class="item-meta">${[c.phone,c.email].filter(Boolean).join(' · ') || 'Sem contato cadastrado'}</div>
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-secondary btn-sm btn-icon" title="Editar" onclick="editClient('${c.id}')">✏️</button>
+            <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="deleteClient('${c.id}')">🗑️</button>
+          </div>
+        </div>`).join('')}</div>`}
+  `;
+
+  addFab(() => openClientModal());
+
+  window.editClient = id => {
+    const c = cls.find(x=>x.id===id);
+    if (c) openClientModal(c);
+  };
+  window.deleteClient = id => {
+    if (!confirm('Excluir este cliente?')) return;
+    DB.set('clients', cls.filter(x=>x.id!==id));
+    toast('Cliente removido', 'error');
+    clients();
+  };
+}
+
+function openClientModal(client={}) {
+  const isEdit = !!client.id;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>${isEdit?'Editar':'Novo'} Cliente</h3>
+      <div class="form-group"><label>Nome</label>
+        <input type="text" id="cm-name" placeholder="Nome do cliente" value="${client.name||''}">
+      </div>
+      <div class="form-group"><label>Telefone</label>
+        <input type="tel" id="cm-phone" placeholder="(00) 00000-0000" value="${client.phone||''}">
+      </div>
+      <div class="form-group"><label>E-mail</label>
+        <input type="email" id="cm-email" placeholder="email@exemplo.com" value="${client.email||''}">
+      </div>
+      <div class="form-group"><label>Observações</label>
+        <textarea id="cm-notes" placeholder="Anotações sobre o cliente...">${client.notes||''}</textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveClient('${client.id||''}')">Salvar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
+}
+
+window.saveClient = (editId) => {
+  const name  = document.getElementById('cm-name').value.trim();
+  const phone = document.getElementById('cm-phone').value.trim();
+  const email = document.getElementById('cm-email').value.trim();
+  const notes = document.getElementById('cm-notes').value.trim();
+  if (!name) { toast('Informe o nome do cliente', 'error'); return; }
+  const cls = DB.get('clients', []);
+  if (editId) {
+    const i = cls.findIndex(x=>x.id===editId);
+    if (i>-1) cls[i] = { ...cls[i], name, phone, email, notes };
+  } else {
+    cls.push({ id: genId(), name, phone, email, notes });
+  }
+  DB.set('clients', cls);
+  document.querySelector('.modal-overlay')?.remove();
+  toast(editId?'Cliente atualizado!':'Cliente cadastrado!', 'success');
+  clients();
+};
+
+// ══════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════
+function settings() {
+  const mc = document.getElementById('main-content');
+  const co = DB.get('company');
+  const op = DB.get('operator', '');
+
+  mc.innerHTML = `
+    <div class="section-header"><h2>Configurações</h2><p>Personalize seu sistema</p></div>
+
+    <div class="settings-section">
+      <h3>Identidade da Empresa</h3>
+      <div class="avatar-upload">
+        <div class="avatar-preview" onclick="document.getElementById('settings-logo-input').click()">
+          ${co.logo ? `<img src="${co.logo}" alt="logo">` : '<span style="font-size:1.8rem">🏪</span>'}
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:.9rem">Logo da Empresa</div>
+          <div style="font-size:.78rem;color:var(--text2);margin-top:4px">Toque para alterar</div>
+        </div>
+      </div>
+      <input type="file" id="settings-logo-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event,'settings')">
+      <div class="form-group">
+        <label>Nome da Empresa</label>
+        <input type="text" id="s-company-name" value="${co.name}" placeholder="Nome da sua empresa">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="saveCompany()">Salvar Nome</button>
+    </div>
+
+    <div class="settings-section">
+      <h3>Acesso</h3>
+      <div class="form-group"><label>Usuário</label>
+        <input type="text" id="s-user" value="${co.user}">
+      </div>
+      <div class="form-group"><label>Nova Senha</label>
+        <input type="password" id="s-pass" placeholder="Deixe em branco para manter">
+      </div>
+      <button class="btn btn-secondary btn-full" onclick="saveAccess()">Atualizar Acesso</button>
+    </div>
+
+    <div class="settings-section">
+      <h3>Operador do Dia</h3>
+      <div class="form-group">
+        <label>Nome do Responsável</label>
+        <input type="text" id="s-operator" value="${op}" placeholder="Ex: João Silva">
+      </div>
+      <button class="btn btn-secondary btn-full" onclick="saveOperator()">Definir Operador</button>
+    </div>
+
+    <div class="settings-section">
+      <h3>Zona de Perigo</h3>
+      <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius);padding:16px;margin-bottom:12px">
+        <div style="font-size:.85rem;color:var(--text2);margin-bottom:12px">Esta ação irá apagar <strong style="color:var(--accent3)">todos os dados</strong> do aplicativo: clientes, produtos, vendas e configurações. Esta ação é irreversível.</div>
+        <button class="btn btn-danger btn-full" onclick="confirmNuke()">🗑️ Apagar Todos os Dados</button>
+      </div>
+    </div>
+  `;
+}
+
+window.saveCompany = () => {
+  const name = document.getElementById('s-company-name').value.trim();
+  if (!name) { toast('Informe o nome da empresa', 'error'); return; }
+  const co = DB.get('company'); co.name = name; DB.set('company', co);
+  refreshTopBar(); toast('Nome atualizado!', 'success');
+};
+
+window.saveAccess = () => {
+  const user = document.getElementById('s-user').value.trim();
+  const pass = document.getElementById('s-pass').value;
+  if (!user) { toast('Informe o usuário', 'error'); return; }
+  const co = DB.get('company'); co.user = user;
+  if (pass) co.pass = pass;
+  DB.set('company', co);
+  toast('Acesso atualizado!', 'success');
+};
+
+window.saveOperator = () => {
+  const op = document.getElementById('s-operator').value.trim();
+  DB.set('operator', op);
+  refreshTopBar();
+  toast(op ? 'Operador definido: ' + op : 'Operador removido', 'success');
+};
+
+window.confirmNuke = () => {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3 style="color:var(--accent3)">⚠️ Apagar Tudo?</h3>
+      <p style="font-size:.9rem;color:var(--text2);margin-bottom:20px">Você está prestes a apagar <strong style="color:var(--text)">todos os dados</strong> permanentemente. Clientes, produtos, vendas e configurações serão removidos. Não é possível desfazer.</p>
+      <div class="form-group"><label>Digite "APAGAR" para confirmar</label>
+        <input type="text" id="nuke-confirm" placeholder="APAGAR">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+        <button class="btn btn-danger" onclick="doNuke()">Apagar Tudo</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
+};
+
+window.doNuke = () => {
+  const val = document.getElementById('nuke-confirm').value;
+  if (val !== 'APAGAR') { toast('Digite APAGAR para confirmar', 'error'); return; }
+  DB.nuke();
+  document.querySelector('.modal-overlay')?.remove();
+  initDefaults();
+  toast('Todos os dados foram apagados', 'error');
+  // go back to login
+  document.getElementById('app-shell').classList.add('hidden');
+  document.getElementById('screen-login').classList.remove('hidden');
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  refreshTopBar();
+};
+
+// ══════════════════════════════════════════════
+//  FAB HELPER
+// ══════════════════════════════════════════════
+function addFab(onClick) {
+  const old = document.getElementById('main-fab');
+  if (old) old.remove();
+  const fab = document.createElement('button');
+  fab.id = 'main-fab'; fab.className = 'fab'; fab.innerHTML = '+';
+  fab.onclick = onClick;
+  document.body.appendChild(fab);
+}
+
+// ══════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════
+initDefaults();
+refreshTopBar();
+</script>
+</body>
+</html>
