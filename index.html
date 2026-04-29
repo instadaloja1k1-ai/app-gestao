@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0f1923">
+<meta name="theme-color" content="#0b1219">
 <meta name="description" content="Sistema de Gestão para Pequenos Negócios">
 <title>GestãoPRO</title>
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
-  /* ─── RESET & BASE ─── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg:        #0b1219;
@@ -30,28 +29,32 @@
     --font-body: 'DM Sans', sans-serif;
   }
   html { font-size: 15px; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-body);
-    min-height: 100dvh;
-    overflow-x: hidden;
-  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100dvh; overflow-x: hidden; }
   input, select, textarea, button { font-family: var(--font-body); }
-
-  /* ─── SCROLLBAR ─── */
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  /* ─── UTILITY ─── */
   .hidden { display: none !important; }
   .fade-in { animation: fadeIn .35s ease; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
   @keyframes slideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+  @keyframes spin    { to { transform: rotate(360deg); } }
+  @keyframes pulse   { 0%,100% { opacity:1; } 50% { opacity:.5; } }
 
-  /* ─── TOAST ─── */
+  /* LOADER */
+  #global-loader {
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--bg); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px;
+  }
+  #global-loader .spinner {
+    width: 40px; height: 40px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  #global-loader p { color: var(--text2); font-size: .9rem; }
+
+  /* TOAST */
   #toast-container {
     position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
     display: flex; flex-direction: column; gap: 8px; z-index: 9999; pointer-events: none;
@@ -59,18 +62,16 @@
   .toast {
     background: var(--surface2); border: 1px solid var(--border);
     color: var(--text); padding: 10px 20px; border-radius: 40px;
-    font-size: .85rem; box-shadow: var(--shadow);
-    animation: slideUp .3s ease; white-space: nowrap;
+    font-size: .85rem; box-shadow: var(--shadow); animation: slideUp .3s ease; white-space: nowrap;
   }
   .toast.success { border-color: var(--accent); color: var(--accent); }
   .toast.error   { border-color: var(--accent3); color: var(--accent3); }
 
-  /* ─── LOGIN SCREEN ─── */
+  /* LOGIN */
   #screen-login {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     min-height: 100dvh; padding: 24px;
-    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,170,.12) 0%, transparent 70%),
-                var(--bg);
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,170,.12) 0%, transparent 70%), var(--bg);
   }
   .login-card {
     width: 100%; max-width: 400px;
@@ -78,24 +79,20 @@
     border-radius: var(--radius-lg); padding: 40px 32px;
     box-shadow: var(--shadow); animation: slideUp .45s ease;
   }
-  .login-logo {
-    display: flex; flex-direction: column; align-items: center; gap: 12px;
-    margin-bottom: 32px;
+  .login-logo { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 32px; }
+  .login-logo .logo-wrap {
+    width: 80px; height: 80px; border-radius: 20px;
+    background: var(--surface2); border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.2rem; overflow: hidden;
   }
-  .login-logo .logo-img {
-    width: 72px; height: 72px; border-radius: 20px;
-    object-fit: cover; background: var(--surface2);
-    border: 2px solid var(--border);
-  }
-  .login-logo h1 {
-    font-family: var(--font-head); font-size: 1.6rem; font-weight: 800;
-    color: var(--text); letter-spacing: -.02em; text-align: center;
-  }
+  .login-logo .logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .login-logo h1 { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; color: var(--text); letter-spacing: -.02em; text-align: center; }
   .login-logo .subtitle { font-size: .8rem; color: var(--text2); text-align: center; }
 
-  /* ─── FORMS ─── */
+  /* FORMS */
   .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: .8rem; color: var(--text2); margin-bottom: 6px; letter-spacing: .04em; text-transform: uppercase; }
+  .form-group label { display: block; font-size: .78rem; color: var(--text2); margin-bottom: 6px; letter-spacing: .04em; text-transform: uppercase; }
   .form-group input, .form-group select, .form-group textarea {
     width: 100%; background: var(--surface2); border: 1px solid var(--border);
     color: var(--text); padding: 12px 16px; border-radius: var(--radius);
@@ -106,30 +103,28 @@
   }
   .form-group select option { background: var(--surface2); }
   .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-  /* ─── BUTTONS ─── */
+  /* BUTTONS */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     padding: 12px 24px; border-radius: var(--radius); font-size: .9rem;
     font-weight: 600; cursor: pointer; border: none; transition: all .2s; letter-spacing: .01em;
   }
-  .btn-primary {
-    background: var(--accent); color: #0b1219;
-    box-shadow: 0 4px 20px rgba(0,212,170,.25);
-  }
-  .btn-primary:hover { background: #00efc0; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,212,170,.35); }
+  .btn-primary  { background: var(--accent); color: #0b1219; box-shadow: 0 4px 20px rgba(0,212,170,.25); }
+  .btn-primary:hover  { background: #00efc0; transform: translateY(-1px); }
   .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
   .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
   .btn-danger { background: rgba(239,68,68,.15); color: var(--accent3); border: 1px solid rgba(239,68,68,.3); }
   .btn-danger:hover { background: rgba(239,68,68,.25); }
   .btn-warn { background: rgba(245,158,11,.15); color: var(--accent2); border: 1px solid rgba(245,158,11,.3); }
-  .btn-warn:hover { background: rgba(245,158,11,.25); }
   .btn-full { width: 100%; }
   .btn-sm { padding: 7px 14px; font-size: .8rem; }
-  .btn-icon { padding: 10px; }
+  .btn-icon { padding: 9px; border-radius: 10px; }
   .btn:active { transform: scale(.97); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
 
-  /* ─── APP SHELL ─── */
+  /* APP SHELL */
   #app-shell { display: flex; flex-direction: column; min-height: 100dvh; }
   #top-bar {
     position: sticky; top: 0; z-index: 100;
@@ -137,18 +132,13 @@
     border-bottom: 1px solid var(--border);
     padding: 10px 16px; display: flex; align-items: center; gap: 12px;
   }
-  #top-bar .logo-wrap { display: flex; align-items: center; gap: 10px; flex: 1; }
-  #top-bar .logo-wrap img {
-    width: 36px; height: 36px; border-radius: 10px;
-    object-fit: cover; border: 1px solid var(--border);
-  }
-  #top-bar .company-name { font-family: var(--font-head); font-weight: 700; font-size: 1rem; }
-  #top-bar .operator-badge {
-    font-size: .72rem; color: var(--text2); background: var(--surface2);
-    border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px;
-  }
+  #top-bar .logo-wrap { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+  #top-bar .logo-wrap img { width: 36px; height: 36px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
+  #top-bar .logo-placeholder { width: 36px; height: 36px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+  #top-bar .company-name { font-family: var(--font-head); font-weight: 700; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #top-bar .operator-badge { font-size: .72rem; color: var(--text2); background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; white-space: nowrap; flex-shrink: 0; }
 
-  /* ─── BOTTOM NAV ─── */
+  /* BOTTOM NAV */
   #bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
     background: rgba(11,18,25,.95); backdrop-filter: blur(16px);
@@ -156,41 +146,47 @@
     display: flex; justify-content: space-around; padding: 8px 0 max(8px, env(safe-area-inset-bottom));
   }
   .nav-item {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    padding: 6px 12px; border-radius: var(--radius); cursor: pointer;
-    font-size: .68rem; color: var(--text3); transition: all .2s; flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 5px 8px; border-radius: var(--radius); cursor: pointer;
+    font-size: .62rem; color: var(--text3); transition: all .2s; flex: 1;
     border: none; background: none;
   }
   .nav-item.active { color: var(--accent); }
-  .nav-item .nav-icon { font-size: 1.3rem; line-height: 1; }
+  .nav-item .nav-icon { font-size: 1.25rem; line-height: 1; }
 
-  /* ─── MAIN CONTENT ─── */
+  /* MAIN */
   #main-content { flex: 1; padding: 16px 16px 90px; max-width: 700px; margin: 0 auto; width: 100%; }
 
-  /* ─── SECTION HEADER ─── */
+  /* SECTION HEADER */
   .section-header { margin-bottom: 20px; }
   .section-header h2 { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; }
   .section-header p  { font-size: .85rem; color: var(--text2); margin-top: 4px; }
 
-  /* ─── DASHBOARD ─── */
-  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .dash-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); padding: 18px 16px;
+  /* LOCKED OVERLAY */
+  .locked-overlay {
+    background: rgba(11,18,25,.85); backdrop-filter: blur(8px);
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 32px; text-align: center; margin-bottom: 16px;
   }
+  .locked-overlay .lock-icon { font-size: 2.5rem; margin-bottom: 12px; }
+  .locked-overlay p { color: var(--text2); font-size: .9rem; margin-bottom: 16px; }
+
+  /* DASHBOARD */
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 16px; position: relative; overflow: hidden; }
   .dash-card.full { grid-column: 1/-1; }
   .dash-card .card-label { font-size: .72rem; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
-  .dash-card .card-value { font-family: var(--font-head); font-size: 1.5rem; font-weight: 700; }
+  .dash-card .card-value { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; }
   .dash-card .card-value.green  { color: var(--accent); }
   .dash-card .card-value.yellow { color: var(--accent2); }
   .dash-card .card-value.red    { color: var(--accent3); }
   .dash-card .card-sub { font-size: .75rem; color: var(--text3); margin-top: 4px; }
+  .dash-card .blurred { filter: blur(6px); user-select: none; pointer-events: none; }
 
   .period-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
   .period-tab {
     padding: 6px 14px; border-radius: 20px; font-size: .8rem; cursor: pointer;
-    border: 1px solid var(--border); background: transparent; color: var(--text2);
-    transition: all .2s;
+    border: 1px solid var(--border); background: transparent; color: var(--text2); transition: all .2s;
   }
   .period-tab.active { background: var(--accent); color: #0b1219; border-color: var(--accent); font-weight: 600; }
 
@@ -206,13 +202,12 @@
   .sale-item .sale-revenue { font-family: var(--font-head); font-weight: 700; color: var(--accent); }
   .sale-item .sale-profit  { font-size: .75rem; color: var(--text2); }
 
-  /* ─── CARDS LIST ─── */
+  /* CARDS LIST */
   .card-list { display: flex; flex-direction: column; gap: 10px; }
   .item-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius-lg); padding: 16px;
-    display: flex; align-items: center; gap: 14px;
-    transition: border-color .2s;
+    display: flex; align-items: center; gap: 14px; transition: border-color .2s;
   }
   .item-card:hover { border-color: var(--accent); }
   .item-card .item-icon {
@@ -226,23 +221,31 @@
   .item-card .item-meta { font-size: .78rem; color: var(--text2); margin-top: 2px; }
   .item-card .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
-  /* ─── FAB ─── */
+  /* STOCK BADGE */
+  .stock-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600;
+  }
+  .stock-badge.ok      { background: rgba(0,212,170,.12); color: var(--accent); border: 1px solid rgba(0,212,170,.25); }
+  .stock-badge.low     { background: rgba(245,158,11,.12); color: var(--accent2); border: 1px solid rgba(245,158,11,.25); }
+  .stock-badge.zero    { background: rgba(239,68,68,.12); color: var(--accent3); border: 1px solid rgba(239,68,68,.25); }
+
+  /* FAB */
   .fab {
     position: fixed; bottom: 80px; right: 20px; z-index: 200;
     width: 54px; height: 54px; border-radius: 16px;
     background: var(--accent); color: #0b1219;
     font-size: 1.6rem; border: none; cursor: pointer;
     box-shadow: 0 6px 24px rgba(0,212,170,.4);
-    display: flex; align-items: center; justify-content: center;
-    transition: all .2s;
+    display: flex; align-items: center; justify-content: center; transition: all .2s;
   }
   .fab:hover { transform: scale(1.08); }
   .fab:active { transform: scale(.95); }
 
-  /* ─── MODAL ─── */
+  /* MODAL */
   .modal-overlay {
     position: fixed; inset: 0; z-index: 500;
-    background: rgba(0,0,0,.7); backdrop-filter: blur(6px);
+    background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
     display: flex; align-items: flex-end; justify-content: center;
     animation: fadeIn .2s ease;
   }
@@ -256,38 +259,35 @@
   .modal-footer { display: flex; gap: 10px; margin-top: 20px; }
   .modal-footer .btn { flex: 1; }
 
-  /* ─── SETTINGS ─── */
+  /* SETTINGS */
   .settings-section { margin-bottom: 24px; }
-  .settings-section h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: .08em; }
+  .settings-section h3 { font-family: var(--font-head); font-size: .85rem; font-weight: 700; margin-bottom: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: .08em; }
   .settings-row {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 14px 16px;
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
   }
-  .settings-row .row-label { font-size: .9rem; }
-  .settings-row .row-sub   { font-size: .78rem; color: var(--text2); }
 
-  /* ─── AVATAR UPLOAD ─── */
+  /* AVATAR */
   .avatar-upload { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
   .avatar-preview {
     width: 72px; height: 72px; border-radius: 18px;
     background: var(--surface2); border: 2px dashed var(--border);
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.8rem; overflow: hidden; flex-shrink: 0; cursor: pointer;
-    transition: border-color .2s;
+    font-size: 1.8rem; overflow: hidden; flex-shrink: 0; cursor: pointer; transition: border-color .2s;
   }
   .avatar-preview:hover { border-color: var(--accent); }
   .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* ─── SALE SCREEN ─── */
+  /* SALE */
   .sale-product-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
   .sale-product-row {
     background: var(--surface2); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 12px 14px;
     display: flex; align-items: center; gap: 10px;
   }
-  .sale-product-row .row-name { flex: 1; font-size: .9rem; font-weight: 500; }
+  .sale-product-row .row-name { flex: 1; font-size: .88rem; font-weight: 500; }
+  .sale-product-row .row-stock { font-size: .72rem; color: var(--text3); }
   .sale-product-row .row-qty { display: flex; align-items: center; gap: 8px; }
   .qty-btn {
     width: 28px; height: 28px; border-radius: 8px;
@@ -297,39 +297,39 @@
   }
   .qty-btn:hover { border-color: var(--accent); color: var(--accent); }
   .qty-display { width: 32px; text-align: center; font-weight: 600; font-size: .9rem; }
-  .sale-product-row .row-subtotal { font-family: var(--font-head); font-size: .9rem; font-weight: 700; color: var(--accent); min-width: 60px; text-align: right; }
-
+  .sale-product-row .row-subtotal { font-family: var(--font-head); font-size: .88rem; font-weight: 700; color: var(--accent); min-width: 64px; text-align: right; }
   .sale-total-bar {
     background: var(--surface2); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 14px 16px;
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
   }
   .sale-total-bar .total-label { font-size: .85rem; color: var(--text2); }
   .sale-total-bar .total-value { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; color: var(--accent); }
 
-  /* ─── EMPTY STATE ─── */
-  .empty-state {
-    text-align: center; padding: 48px 24px; color: var(--text3);
-  }
+  /* EMPTY */
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
   .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: .5; }
   .empty-state p { font-size: .9rem; }
 
-  /* ─── OPERATOR BANNER ─── */
+  /* OPERATOR BANNER */
   .operator-banner {
     background: linear-gradient(135deg, rgba(0,212,170,.08), rgba(0,212,170,.03));
     border: 1px solid rgba(0,212,170,.2);
     border-radius: var(--radius); padding: 12px 16px;
     display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
   }
-  .operator-banner .op-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--accent); animation: pulse 2s infinite;
-  }
+  .operator-banner .op-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; flex-shrink: 0; }
   .operator-banner .op-text { font-size: .85rem; }
   .operator-banner .op-name { font-weight: 600; color: var(--accent); }
 
-  /* ─── RESPONSIVE ─── */
+  /* MANAGER BADGE */
+  .manager-active {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600;
+    background: rgba(245,158,11,.12); color: var(--accent2); border: 1px solid rgba(245,158,11,.25);
+    margin-bottom: 12px;
+  }
+
   @media (min-width: 480px) {
     .dash-grid { grid-template-columns: repeat(3, 1fr); }
     .dash-card.full { grid-column: 1/-1; }
@@ -338,15 +338,18 @@
 </head>
 <body>
 
-<!-- ══════════════ LOGIN ══════════════ -->
-<div id="screen-login">
+<!-- LOADER -->
+<div id="global-loader">
+  <div class="spinner"></div>
+  <p>Carregando...</p>
+</div>
+
+<!-- LOGIN -->
+<div id="screen-login" class="hidden">
   <div class="login-card">
     <div class="login-logo">
-      <div class="avatar-preview" id="login-logo-preview" onclick="document.getElementById('logo-upload-input').click()">
-        <span id="login-logo-placeholder">🏪</span>
-      </div>
-      <input type="file" id="logo-upload-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event,'login')">
-      <h1 id="login-company-name">Minha Empresa</h1>
+      <div class="logo-wrap" id="login-logo-wrap">🏪</div>
+      <h1 id="login-company-name">GestãoPRO</h1>
       <span class="subtitle">Sistema de Gestão</span>
     </div>
     <div class="form-group">
@@ -361,21 +364,17 @@
   </div>
 </div>
 
-<!-- ══════════════ APP SHELL ══════════════ -->
+<!-- APP -->
 <div id="app-shell" class="hidden">
-  <!-- TOP BAR -->
   <div id="top-bar">
     <div class="logo-wrap">
-      <img id="topbar-logo" src="" alt="Logo" onerror="this.style.display='none'">
-      <span id="topbar-company" class="company-name">Minha Empresa</span>
+      <div id="topbar-logo-ph" class="logo-placeholder">🏪</div>
+      <img id="topbar-logo" src="" alt="" style="display:none">
+      <span id="topbar-company" class="company-name">GestãoPRO</span>
     </div>
     <span id="topbar-operator" class="operator-badge hidden"></span>
   </div>
-
-  <!-- MAIN CONTENT -->
   <div id="main-content"></div>
-
-  <!-- BOTTOM NAV -->
   <nav id="bottom-nav">
     <button class="nav-item active" data-screen="dashboard" onclick="navigate('dashboard')">
       <span class="nav-icon">📊</span>Dashboard
@@ -395,237 +394,302 @@
   </nav>
 </div>
 
-<!-- TOAST -->
 <div id="toast-container"></div>
 
-<script>
-// ══════════════════════════════════════════════
-//  DATA LAYER  —  localStorage wrapper
-// ══════════════════════════════════════════════
-const DB = {
-  get(k, def) { try { const v = localStorage.getItem('gp_'+k); return v ? JSON.parse(v) : def; } catch { return def; } },
-  set(k, v)   { localStorage.setItem('gp_'+k, JSON.stringify(v)); },
-  keys()      { return Object.keys(localStorage).filter(k=>k.startsWith('gp_')); },
-  nuke()      { DB.keys().forEach(k=>localStorage.removeItem(k)); }
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCWoLAh6N_kdW0Cy-xjiFpeRx-YFIBZ90w",
+  authDomain: "gestaopro-18341.firebaseapp.com",
+  projectId: "gestaopro-18341",
+  storageBucket: "gestaopro-18341.firebasestorage.app",
+  messagingSenderId: "288233544118",
+  appId: "1:288233544118:web:a7b040fe1e4a2633a20917"
 };
 
-// ══════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════
-let state = {
-  screen: 'dashboard',
-  dashPeriod: 'today',
-  saleCart: {}
-};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
 
-// Initial data
-function initDefaults() {
-  if (!DB.get('company')) DB.set('company', { name: 'Minha Empresa', logo: '', user: 'admin', pass: 'admin' });
-  if (!DB.get('operator')) DB.set('operator', '');
-  if (!DB.get('clients')) DB.set('clients', []);
-  if (!DB.get('products')) DB.set('products', []);
-  if (!DB.get('sales')) DB.set('sales', []);
+// ── GLOBALS ──
+let COMPANY_ID = null;
+let SESSION = { managerUnlocked: false };
+let state = { screen: 'dashboard', dashPeriod: 'today' };
+let saleCart = {};
+
+// ── HELPERS ──
+function fmt(v) { return 'R$\u00a0' + Number(v||0).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 }
-
-// ══════════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════════
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 function toast(msg, type='') {
   const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.textContent = msg;
+  t.className = 'toast ' + type; t.textContent = msg;
   document.getElementById('toast-container').appendChild(t);
-  setTimeout(() => t.remove(), 2800);
+  setTimeout(()=>t.remove(), 2800);
+}
+function showLoader(v) { document.getElementById('global-loader').style.display = v?'flex':'none'; }
+function now() { return new Date(); }
+
+function filterByPeriod(sales, period) {
+  const n = now();
+  let start;
+  if (period==='today') { start=new Date(n); start.setHours(0,0,0,0); }
+  else if (period==='week') { start=new Date(n); start.setDate(n.getDate()-n.getDay()); start.setHours(0,0,0,0); }
+  else if (period==='15days') { start=new Date(n); start.setDate(n.getDate()<=15?1:16); start.setHours(0,0,0,0); }
+  else if (period==='month') { start=new Date(n.getFullYear(),n.getMonth(),1); }
+  else { start=new Date(n.getFullYear(),0,1); }
+  return sales.filter(s => { const d=s.date?.toDate?s.date.toDate():new Date(s.date); return d>=start; });
+}
+function calcTotals(sales) {
+  let revenue=0,cost=0;
+  sales.forEach(s=>{ revenue+=s.revenue||0; cost+=s.cost||0; });
+  return { revenue, cost, profit: revenue-cost };
+}
+function stockClass(qty, min) {
+  if (qty <= 0) return 'zero';
+  if (qty <= (min||5)) return 'low';
+  return 'ok';
+}
+function stockLabel(qty, min) {
+  if (qty <= 0) return '⛔ Sem estoque';
+  if (qty <= (min||5)) return '⚠️ Estoque baixo';
+  return '✓ Em estoque';
 }
 
-// ══════════════════════════════════════════════
-//  LOGIN
-// ══════════════════════════════════════════════
-function doLogin() {
+// ── FIRESTORE HELPERS ──
+function companyDoc(path) { return doc(db, 'companies', COMPANY_ID, ...path.split('/')); }
+function companyColl(path) { return collection(db, 'companies', COMPANY_ID, path); }
+
+async function getCompanyData() { return (await getDoc(doc(db,'companies',COMPANY_ID))).data(); }
+async function saveCompanyData(data) { await setDoc(doc(db,'companies',COMPANY_ID), data, {merge:true}); }
+
+async function getColl(name) {
+  const snap = await getDocs(companyColl(name));
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function addItem(coll, data) { return await addDoc(companyColl(coll), data); }
+async function updateItem(coll, id, data) { await updateDoc(doc(db,'companies',COMPANY_ID,coll,id), data); }
+async function deleteItem(coll, id) { await deleteDoc(doc(db,'companies',COMPANY_ID,coll,id)); }
+
+// ── BOOT ──
+async function boot() {
+  showLoader(true);
+  // Check last session
+  const saved = localStorage.getItem('gp_session');
+  if (saved) {
+    COMPANY_ID = saved;
+    try {
+      const data = await getCompanyData();
+      if (data) { showApp(data); showLoader(false); return; }
+    } catch(e) {}
+  }
+  showLoader(false);
+  document.getElementById('screen-login').classList.remove('hidden');
+  // Prefill login logo if any companies exist — skip for simplicity
+}
+
+// ── LOGIN ──
+window.doLogin = async () => {
   const user = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value;
-  const co = DB.get('company');
-  if (user === co.user && pass === co.pass) {
-    document.getElementById('screen-login').classList.add('hidden');
-    document.getElementById('app-shell').classList.remove('hidden');
-    refreshTopBar();
-    navigate('dashboard');
-  } else {
-    toast('Usuário ou senha incorretos', 'error');
-  }
-}
-
-function handleLogoUpload(e, ctx) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const b64 = ev.target.result;
-    const co = DB.get('company'); co.logo = b64; DB.set('company', co);
-    if (ctx === 'login') {
-      const pl = document.getElementById('login-logo-placeholder');
-      if (pl) pl.innerHTML = `<img src="${b64}" style="width:100%;height:100%;object-fit:cover;border-radius:16px">`;
+  if (!user||!pass) { toast('Preencha usuário e senha','error'); return; }
+  showLoader(true);
+  try {
+    // Search companies collection for matching credentials
+    const snap = await getDocs(collection(db,'companies'));
+    let found = null;
+    snap.forEach(d => {
+      const data = d.data();
+      if (data.user === user && data.pass === pass) { found = {id:d.id,...data}; }
+    });
+    if (!found) {
+      // Create new company on first login
+      if (snap.empty || user === 'admin') {
+        // Check if admin company exists
+        const existing = snap.docs.find(d=>d.data().user===user);
+        if (!existing) {
+          const ref = await addDoc(collection(db,'companies'), {
+            name: 'Minha Empresa', logo: '', user, pass,
+            operator: '', managerPass: '1234', createdAt: new Date()
+          });
+          COMPANY_ID = ref.id;
+          localStorage.setItem('gp_session', COMPANY_ID);
+          const data = await getCompanyData();
+          showApp(data); showLoader(false); return;
+        }
+      }
+      toast('Usuário ou senha incorretos','error'); showLoader(false); return;
     }
-    refreshTopBar();
-    toast('Logo atualizado!', 'success');
-  };
-  reader.readAsDataURL(file);
+    COMPANY_ID = found.id;
+    localStorage.setItem('gp_session', COMPANY_ID);
+    showApp(found);
+  } catch(e) { toast('Erro ao conectar: '+e.message,'error'); }
+  showLoader(false);
+};
+
+function showApp(data) {
+  document.getElementById('screen-login').classList.add('hidden');
+  document.getElementById('app-shell').classList.remove('hidden');
+  SESSION.managerUnlocked = false;
+  refreshTopBar(data);
+  navigate('dashboard');
 }
 
-function refreshTopBar() {
-  const co = DB.get('company');
-  document.getElementById('topbar-company').textContent = co.name;
-  const logoEl = document.getElementById('topbar-logo');
-  if (co.logo) { logoEl.src = co.logo; logoEl.style.display = ''; }
-  else logoEl.style.display = 'none';
-  // login screen
-  const lcn = document.getElementById('login-company-name');
-  if (lcn) lcn.textContent = co.name;
-  const llp = document.getElementById('login-logo-placeholder');
-  if (llp && co.logo) llp.innerHTML = `<img src="${co.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:16px">`;
-  // operator
-  const op = DB.get('operator');
+function refreshTopBar(data) {
+  if (!data) return;
+  document.getElementById('topbar-company').textContent = data.name || 'GestãoPRO';
+  if (data.logo) {
+    document.getElementById('topbar-logo').src = data.logo;
+    document.getElementById('topbar-logo').style.display = '';
+    document.getElementById('topbar-logo-ph').style.display = 'none';
+    // login
+    const lw = document.getElementById('login-logo-wrap');
+    if (lw) lw.innerHTML = `<img src="${data.logo}" alt="logo">`;
+  }
+  const ln = document.getElementById('login-company-name');
+  if (ln) ln.textContent = data.name || 'GestãoPRO';
   const ob = document.getElementById('topbar-operator');
-  if (op) { ob.textContent = '👤 ' + op; ob.classList.remove('hidden'); }
+  if (data.operator) { ob.textContent = '👤 '+data.operator; ob.classList.remove('hidden'); }
   else ob.classList.add('hidden');
 }
 
-// ══════════════════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════════════════
-function navigate(screen) {
+// ── NAVIGATE ──
+window.navigate = function(screen) {
   state.screen = screen;
-  document.querySelectorAll('.nav-item').forEach(el => {
-    el.classList.toggle('active', el.dataset.screen === screen);
-  });
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.screen===screen));
   const mc = document.getElementById('main-content');
-  mc.innerHTML = '';
-  mc.className = 'fade-in';
-  setTimeout(() => mc.className = '', 400);
-  const fab = document.getElementById('main-fab');
-  if (fab) fab.remove();
-
-  const screens = { dashboard, sales, products, clients, settings };
+  mc.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite"></div></div>';
+  const old = document.getElementById('main-fab');
+  if (old) old.remove();
+  const screens = { dashboard: dashboardScreen, sales: salesScreen, products: productsScreen, clients: clientsScreen, settings: settingsScreen };
   if (screens[screen]) screens[screen]();
+};
+
+function addFab(onClick) {
+  const old = document.getElementById('main-fab'); if (old) old.remove();
+  const fab = document.createElement('button');
+  fab.id='main-fab'; fab.className='fab'; fab.innerHTML='+'; fab.onclick=onClick;
+  document.body.appendChild(fab);
 }
 
 // ══════════════════════════════════════════════
-//  HELPERS
+//  MANAGER LOCK
 // ══════════════════════════════════════════════
-function fmt(v) {
-  return 'R$\u00a0' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtDate(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-}
-function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-function startOfDay(d)      { const x=new Date(d); x.setHours(0,0,0,0); return x; }
-function startOfWeek(d)     { const x=new Date(d); x.setDate(x.getDate()-x.getDay()); x.setHours(0,0,0,0); return x; }
-function startOfFortnight(d){ const x=new Date(d); x.setDate(x.getDate()<=15?1:16); x.setHours(0,0,0,0); return x; }
-function startOfMonth(d)    { const x=new Date(d); x.setDate(1); x.setHours(0,0,0,0); return x; }
-function startOfYear(d)     { const x=new Date(d); x.setMonth(0,1); x.setHours(0,0,0,0); return x; }
+function requireManager(callback) {
+  if (SESSION.managerUnlocked) { callback(); return; }
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>🔐 Área Restrita</h3>
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:16px">Esta área é protegida. Digite a senha do gerente para continuar.</p>
+      <div class="form-group"><label>Senha do Gerente</label>
+        <input type="password" id="mgr-pass-input" placeholder="••••••" autofocus>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+        <button class="btn btn-primary" onclick="checkManagerPass()">Entrar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  document.getElementById('mgr-pass-input').addEventListener('keydown', e=>{ if(e.key==='Enter') window.checkManagerPass(); });
 
-function filterSalesByPeriod(sales, period) {
-  const now = new Date();
-  let start;
-  if (period==='today')      start = startOfDay(now);
-  else if (period==='week')  start = startOfWeek(now);
-  else if (period==='15days')start = startOfFortnight(now);
-  else if (period==='month') start = startOfMonth(now);
-  else                       start = startOfYear(now);
-  return sales.filter(s => new Date(s.date) >= start);
-}
-
-function calcSales(sales) {
-  let revenue = 0, cost = 0;
-  sales.forEach(s => { revenue += s.revenue || 0; cost += s.cost || 0; });
-  return { revenue, cost, profit: revenue - cost };
+  window.checkManagerPass = async () => {
+    const input = document.getElementById('mgr-pass-input').value;
+    const data = await getCompanyData();
+    if (input === (data.managerPass || '1234')) {
+      SESSION.managerUnlocked = true;
+      overlay.remove();
+      callback();
+    } else { toast('Senha incorreta','error'); }
+  };
 }
 
 // ══════════════════════════════════════════════
 //  DASHBOARD
 // ══════════════════════════════════════════════
-function dashboard() {
+async function dashboardScreen() {
   const mc = document.getElementById('main-content');
-  const op = DB.get('operator');
-  const allSales = DB.get('sales', []);
-  const periods = [
-    { key:'today',  label:'Hoje' },
-    { key:'week',   label:'Semana' },
-    { key:'15days', label:'Quinzena' },
-    { key:'month',  label:'Mês' },
-    { key:'year',   label:'Ano' },
-  ];
+  const [data, allSales] = await Promise.all([getCompanyData(), getColl('sales')]);
+  const operator = data.operator || '';
+  const periods = [{key:'today',label:'Hoje'},{key:'week',label:'Semana'},{key:'15days',label:'Quinzena'},{key:'month',label:'Mês'},{key:'year',label:'Ano'}];
 
   function render() {
-    const filtered = filterSalesByPeriod(allSales, state.dashPeriod);
-    const { revenue, cost, profit } = calcSales(filtered);
+    const filtered = filterByPeriod(allSales, state.dashPeriod);
+    const { revenue, cost, profit } = calcTotals(filtered);
+    const blur = !SESSION.managerUnlocked;
+
     mc.innerHTML = `
-      <div class="section-header">
-        <h2>Dashboard</h2>
-        <p>Visão geral do seu negócio</p>
-      </div>
-      ${op ? `<div class="operator-banner"><div class="op-dot"></div><span class="op-text">Operador do dia: <span class="op-name">${op}</span></span></div>` : ''}
+      <div class="section-header"><h2>Dashboard</h2><p>Visão geral do negócio</p></div>
+      ${operator?`<div class="operator-banner"><div class="op-dot"></div><span class="op-text">Operador do dia: <span class="op-name">${operator}</span></span></div>`:''}
+      ${SESSION.managerUnlocked?`<div class="manager-active">🔓 Modo Gerente ativo</div>`:''}
       <div class="period-tabs">
-        ${periods.map(p=>`<button class="period-tab ${state.dashPeriod===p.key?'active':''}" onclick="state.dashPeriod='${p.key}';dashboard()">${p.label}</button>`).join('')}
+        ${periods.map(p=>`<button class="period-tab ${state.dashPeriod===p.key?'active':''}" onclick="state.dashPeriod='${p.key}';dashRefresh()">${p.label}</button>`).join('')}
       </div>
       <div class="dash-grid">
         <div class="dash-card">
           <div class="card-label">Receita</div>
-          <div class="card-value">${fmt(revenue)}</div>
+          <div class="card-value green">${fmt(revenue)}</div>
           <div class="card-sub">${filtered.length} venda(s)</div>
         </div>
         <div class="dash-card">
           <div class="card-label">Custo</div>
-          <div class="card-value yellow">${fmt(cost)}</div>
-          <div class="card-sub">total do período</div>
+          <div class="card-value ${blur?'':'yellow'} ${blur?'blurred':''}">${blur?fmt(99999):fmt(cost)}</div>
+          <div class="card-sub">${blur?'🔒 restrito':'total do período'}</div>
         </div>
         <div class="dash-card full">
           <div class="card-label">Lucro</div>
-          <div class="card-value ${profit>=0?'green':'red'}">${fmt(profit)}</div>
-          <div class="card-sub">margem: ${revenue>0?((profit/revenue)*100).toFixed(1)+'%':'—'}</div>
+          <div class="card-value ${blur?'':''+( profit>=0?'green':'red')} ${blur?'blurred':''}">${blur?fmt(99999):fmt(profit)}</div>
+          <div class="card-sub">${blur?'🔒 restrito':'margem: '+(revenue>0?((profit/revenue)*100).toFixed(1)+'%':'—')}</div>
         </div>
       </div>
+      ${blur?`<button class="btn btn-warn btn-full" style="margin-bottom:16px" onclick="unlockManagerDash()">🔐 Desbloquear dados do gerente</button>`:`<button class="btn btn-secondary btn-full" style="margin-bottom:16px" onclick="lockManager()">🔒 Bloquear dados</button>`}
       <div class="section-header"><h2 style="font-size:1rem">Últimas Vendas</h2></div>
-      ${filtered.length===0 ? `<div class="empty-state"><div class="empty-icon">📉</div><p>Nenhuma venda no período selecionado.</p></div>` :
-        `<div class="sales-list">${[...filtered].reverse().slice(0,15).map(s=>`
+      ${filtered.length===0?`<div class="empty-state"><div class="empty-icon">📉</div><p>Nenhuma venda no período.</p></div>`:
+        `<div class="sales-list">${[...filtered].reverse().slice(0,20).map(s=>`
           <div class="sale-item">
             <div class="sale-info">
-              <div class="sale-name">${s.clientName || 'Venda direta'}</div>
+              <div class="sale-name">${s.clientName||'Venda direta'}</div>
               <div class="sale-date">${fmtDate(s.date)}</div>
             </div>
             <div class="sale-values">
               <div class="sale-revenue">${fmt(s.revenue)}</div>
-              <div class="sale-profit">lucro: ${fmt(s.revenue - s.cost)}</div>
+              ${blur?`<div class="sale-profit" style="filter:blur(4px)">lucro: ${fmt(999)}</div>`:
+                `<div class="sale-profit">lucro: ${fmt(s.revenue-s.cost)}</div>`}
             </div>
-          </div>`).join('')}</div>`}
-    `;
+          </div>`).join('')}</div>`}`;
   }
+
+  window.dashRefresh = () => render();
+  window.unlockManagerDash = () => requireManager(()=>render());
+  window.lockManager = () => { SESSION.managerUnlocked=false; render(); };
   render();
 }
 
 // ══════════════════════════════════════════════
 //  SALES
 // ══════════════════════════════════════════════
-function sales() {
+async function salesScreen() {
   const mc = document.getElementById('main-content');
-  const products = DB.get('products', []);
-  const clients = DB.get('clients', []);
-  state.saleCart = {};
+  const [products, clients] = await Promise.all([getColl('products'), getColl('clients')]);
+  saleCart = {};
 
-  function renderSales() {
-    let total = 0, totalCost = 0;
-    Object.entries(state.saleCart).forEach(([id, qty]) => {
-      const p = products.find(x=>x.id===id); if (!p) return;
-      total += p.price * qty;
-      totalCost += p.cost * qty;
+  function render() {
+    let total=0, totalCost=0;
+    Object.entries(saleCart).forEach(([id,qty])=>{
+      const p=products.find(x=>x.id===id); if(!p) return;
+      total+=p.price*qty; totalCost+=p.cost*qty;
     });
 
     mc.innerHTML = `
-      <div class="section-header">
-        <h2>Nova Venda</h2>
-        <p>Selecione produtos e finalize</p>
-      </div>
+      <div class="section-header"><h2>Nova Venda</h2><p>Selecione produtos e finalize</p></div>
       <div class="form-group">
         <label>Cliente (opcional)</label>
         <select id="sale-client">
@@ -633,371 +697,451 @@ function sales() {
           ${clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
         </select>
       </div>
-      ${products.length===0 ? `<div class="empty-state"><div class="empty-icon">📦</div><p>Cadastre produtos antes de realizar vendas.</p></div>` : `
+      ${products.length===0?`<div class="empty-state"><div class="empty-icon">📦</div><p>Cadastre produtos primeiro.</p></div>`:`
       <div class="sale-product-list">
         ${products.map(p=>{
-          const qty = state.saleCart[p.id] || 0;
-          const unit = p.unit==='kg'?'kg':p.unit==='lt'?'lt':'un';
+          const qty=saleCart[p.id]||0;
+          const stock=p.stock||0;
+          const sc=stockClass(stock,p.minStock);
+          const unit=p.unit==='kg'?'kg':p.unit==='lt'?'lt':'un';
           return `<div class="sale-product-row">
-            <div class="row-name">${p.name} <small style="color:var(--text3)">(${unit})</small></div>
+            <div style="flex:1;min-width:0">
+              <div class="row-name">${p.name} <small style="color:var(--text3)">(${unit})</small></div>
+              <div class="row-stock"><span class="stock-badge ${sc}">${stockLabel(stock,p.minStock)}</span> ${stock} em estoque</div>
+            </div>
             <div class="row-qty">
               <button class="qty-btn" onclick="changeCart('${p.id}',-1)">−</button>
               <span class="qty-display">${qty}</span>
-              <button class="qty-btn" onclick="changeCart('${p.id}',1)">+</button>
+              <button class="qty-btn" onclick="changeCart('${p.id}',1)" ${qty>=stock?'disabled style="opacity:.3"':''}>+</button>
             </div>
-            <div class="row-subtotal">${fmt(p.price * qty)}</div>
+            <div class="row-subtotal">${fmt(p.price*qty)}</div>
           </div>`;
         }).join('')}
       </div>
       <div class="sale-total-bar">
-        <span class="total-label">Total da venda</span>
+        <span class="total-label">Total</span>
         <span class="total-value">${fmt(total)}</span>
       </div>
-      <button class="btn btn-primary btn-full" onclick="finishSale(${total}, ${totalCost})" ${total===0?'disabled style="opacity:.4"':''}>
+      <button class="btn btn-primary btn-full" onclick="finishSale(${total},${totalCost})" ${total===0?'disabled':''}>
         ✓ Finalizar Venda
-      </button>`}
-    `;
+      </button>`}`;
   }
 
   window.changeCart = (id, delta) => {
-    state.saleCart[id] = Math.max(0, (state.saleCart[id]||0) + delta);
-    renderSales();
+    const p = products.find(x=>x.id===id); if(!p) return;
+    const cur = saleCart[id]||0;
+    const nw = Math.max(0, Math.min(cur+delta, p.stock||0));
+    saleCart[id] = nw;
+    render();
   };
 
-  window.finishSale = (revenue, cost) => {
-    if (revenue === 0) return;
-    const clientSel = document.getElementById('sale-client');
-    const clientId = clientSel ? clientSel.value : '';
-    const client = clients.find(c=>c.id===clientId);
-    const sales = DB.get('sales', []);
-    sales.push({ id: genId(), date: new Date().toISOString(), revenue, cost, clientId, clientName: client?.name || '' });
-    DB.set('sales', sales);
-    state.saleCart = {};
-    toast('Venda registrada!', 'success');
-    renderSales();
+  window.finishSale = async (revenue, cost) => {
+    if (revenue===0) return;
+    showLoader(true);
+    try {
+      const clientSel = document.getElementById('sale-client');
+      const clientId = clientSel?.value||'';
+      const clients2 = await getColl('clients');
+      const client = clients2.find(c=>c.id===clientId);
+      // Deduce stock
+      const updates = [];
+      for (const [id,qty] of Object.entries(saleCart)) {
+        if (qty>0) {
+          const p=products.find(x=>x.id===id);
+          if(p) updates.push(updateItem('products',id,{stock:Math.max(0,(p.stock||0)-qty)}));
+        }
+      }
+      await Promise.all(updates);
+      await addItem('sales',{ date:new Date(), revenue, cost, clientId, clientName:client?.name||'' });
+      saleCart={};
+      toast('Venda registrada!','success');
+      // Reload products with new stock
+      const fresh = await getColl('products');
+      products.splice(0,products.length,...fresh);
+      render();
+    } catch(e){ toast('Erro: '+e.message,'error'); }
+    showLoader(false);
   };
 
-  renderSales();
+  render();
 }
 
 // ══════════════════════════════════════════════
 //  PRODUCTS
 // ══════════════════════════════════════════════
-function products() {
+async function productsScreen() {
   const mc = document.getElementById('main-content');
-  const prods = DB.get('products', []);
-  const unitLabel = { un: '📦 Unidade', kg: '⚖️ Kg', lt: '💧 Litros' };
+  const prods = await getColl('products');
+  const unitLabel = {un:'📦 Unidade',kg:'⚖️ Kg',lt:'💧 Litros'};
 
-  mc.innerHTML = `
-    <div class="section-header">
-      <h2>Produtos</h2>
-      <p>${prods.length} produto(s) cadastrado(s)</p>
-    </div>
-    ${prods.length===0 ? `<div class="empty-state"><div class="empty-icon">📦</div><p>Nenhum produto cadastrado. Toque + para adicionar.</p></div>` :
-      `<div class="card-list">${prods.map(p=>`
-        <div class="item-card">
+  function render() {
+    mc.innerHTML = `
+      <div class="section-header"><h2>Produtos</h2><p>${prods.length} produto(s) cadastrado(s)</p></div>
+      ${prods.length===0?`<div class="empty-state"><div class="empty-icon">📦</div><p>Nenhum produto. Toque + para adicionar.</p></div>`:`
+      <div class="card-list">${prods.map(p=>{
+        const sc=stockClass(p.stock||0,p.minStock||5);
+        return `<div class="item-card">
           <div class="item-icon">${p.unit==='kg'?'⚖️':p.unit==='lt'?'💧':'📦'}</div>
           <div class="item-info">
             <div class="item-name">${p.name}</div>
-            <div class="item-meta">${unitLabel[p.unit]} · Venda: ${fmt(p.price)} · Custo: ${fmt(p.cost)}</div>
+            <div class="item-meta">${unitLabel[p.unit]||'📦 Unidade'} · Venda: ${fmt(p.price)}</div>
+            <div style="margin-top:4px;display:flex;gap:6px;align-items:center">
+              <span class="stock-badge ${sc}">${stockLabel(p.stock||0,p.minStock||5)}</span>
+              <span style="font-size:.75rem;color:var(--text3)">${p.stock||0} ${p.unit==='kg'?'kg':p.unit==='lt'?'lt':'un'}</span>
+            </div>
           </div>
           <div class="item-actions">
-            <button class="btn btn-secondary btn-sm btn-icon" title="Editar" onclick="editProduct('${p.id}')">✏️</button>
-            <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="deleteProduct('${p.id}')">🗑️</button>
+            <button class="btn btn-secondary btn-sm btn-icon" onclick="editProduct('${p.id}')">✏️</button>
+            <button class="btn btn-danger btn-sm btn-icon" onclick="deleteProduct('${p.id}')">🗑️</button>
           </div>
-        </div>`).join('')}</div>`}
-  `;
+        </div>`;
+      }).join('')}</div>`}`;
+  }
 
-  // FAB
-  addFab(() => openProductModal());
+  addFab(()=>openProductModal(null, prods, render));
 
   window.editProduct = id => {
-    const p = prods.find(x=>x.id===id);
-    if (p) openProductModal(p);
+    requireManager(()=>openProductModal(prods.find(x=>x.id===id), prods, render));
   };
   window.deleteProduct = id => {
-    if (!confirm('Excluir este produto?')) return;
-    const updated = prods.filter(x=>x.id!==id);
-    DB.set('products', updated);
-    toast('Produto removido', 'error');
-    products();
+    requireManager(async()=>{
+      if (!confirm('Excluir este produto?')) return;
+      showLoader(true);
+      await deleteItem('products',id);
+      prods.splice(prods.findIndex(x=>x.id===id),1);
+      toast('Produto removido','error'); render(); showLoader(false);
+    });
   };
+  render();
 }
 
-function openProductModal(prod={}) {
-  const isEdit = !!prod.id;
+function openProductModal(prod, prods, onSave) {
+  const isEdit = !!prod?.id;
   const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.innerHTML = `
+  overlay.className='modal-overlay';
+  overlay.innerHTML=`
     <div class="modal">
       <h3>${isEdit?'Editar':'Novo'} Produto</h3>
-      <div class="form-group"><label>Nome do Produto</label>
-        <input type="text" id="pm-name" placeholder="Ex: Água mineral 500ml" value="${prod.name||''}">
+      <div class="form-group"><label>Nome</label>
+        <input type="text" id="pm-name" placeholder="Ex: Água mineral 500ml" value="${prod?.name||''}">
       </div>
       <div class="form-group"><label>Unidade de Medida</label>
         <select id="pm-unit">
-          <option value="un" ${prod.unit==='un'?'selected':''}>Unidade</option>
-          <option value="kg" ${prod.unit==='kg'?'selected':''}>Kg (quilograma)</option>
-          <option value="lt" ${prod.unit==='lt'?'selected':''}>Litros</option>
+          <option value="un" ${prod?.unit==='un'||!prod?'selected':''}>Unidade</option>
+          <option value="kg" ${prod?.unit==='kg'?'selected':''}>Kg (quilograma)</option>
+          <option value="lt" ${prod?.unit==='lt'?'selected':''}>Litros</option>
         </select>
       </div>
-      <div class="form-group"><label>Preço de Venda (R$)</label>
-        <input type="number" id="pm-price" step="0.01" min="0" placeholder="0,00" value="${prod.price||''}">
+      <div class="form-row">
+        <div class="form-group"><label>Preço de Venda (R$)</label>
+          <input type="number" id="pm-price" step="0.01" min="0" placeholder="0,00" value="${prod?.price||''}">
+        </div>
+        <div class="form-group"><label>Custo (R$)</label>
+          <input type="number" id="pm-cost" step="0.01" min="0" placeholder="0,00" value="${prod?.cost||''}">
+        </div>
       </div>
-      <div class="form-group"><label>Custo (R$)</label>
-        <input type="number" id="pm-cost" step="0.01" min="0" placeholder="0,00" value="${prod.cost||''}">
+      <div class="form-row">
+        <div class="form-group"><label>Estoque Atual</label>
+          <input type="number" id="pm-stock" step="0.01" min="0" placeholder="0" value="${prod?.stock||0}">
+        </div>
+        <div class="form-group"><label>Estoque Mínimo</label>
+          <input type="number" id="pm-minstock" step="1" min="0" placeholder="5" value="${prod?.minStock||5}">
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveProduct('${prod.id||''}')">Salvar</button>
+        <button class="btn btn-primary" onclick="saveProduct('${prod?.id||''}')">Salvar</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
-}
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
 
-window.saveProduct = (editId) => {
-  const name  = document.getElementById('pm-name').value.trim();
-  const unit  = document.getElementById('pm-unit').value;
-  const price = parseFloat(document.getElementById('pm-price').value) || 0;
-  const cost  = parseFloat(document.getElementById('pm-cost').value) || 0;
-  if (!name) { toast('Informe o nome do produto', 'error'); return; }
-  const prods = DB.get('products', []);
-  if (editId) {
-    const i = prods.findIndex(x=>x.id===editId);
-    if (i>-1) prods[i] = { ...prods[i], name, unit, price, cost };
-  } else {
-    prods.push({ id: genId(), name, unit, price, cost });
-  }
-  DB.set('products', prods);
-  document.querySelector('.modal-overlay')?.remove();
-  toast(editId?'Produto atualizado!':'Produto cadastrado!', 'success');
-  products();
-};
+  window.saveProduct = async (editId) => {
+    const name     = document.getElementById('pm-name').value.trim();
+    const unit     = document.getElementById('pm-unit').value;
+    const price    = parseFloat(document.getElementById('pm-price').value)||0;
+    const cost     = parseFloat(document.getElementById('pm-cost').value)||0;
+    const stock    = parseFloat(document.getElementById('pm-stock').value)||0;
+    const minStock = parseInt(document.getElementById('pm-minstock').value)||5;
+    if (!name) { toast('Informe o nome','error'); return; }
+    showLoader(true);
+    if (editId) {
+      await updateItem('products',editId,{name,unit,price,cost,stock,minStock});
+      const i=prods.findIndex(x=>x.id===editId);
+      if(i>-1) prods[i]={...prods[i],name,unit,price,cost,stock,minStock};
+    } else {
+      const ref=await addItem('products',{name,unit,price,cost,stock,minStock,createdAt:new Date()});
+      prods.push({id:ref.id,name,unit,price,cost,stock,minStock});
+    }
+    overlay.remove();
+    toast(editId?'Produto atualizado!':'Produto cadastrado!','success');
+    onSave(); showLoader(false);
+  };
+}
 
 // ══════════════════════════════════════════════
 //  CLIENTS
 // ══════════════════════════════════════════════
-function clients() {
+async function clientsScreen() {
   const mc = document.getElementById('main-content');
-  const cls = DB.get('clients', []);
+  const cls = await getColl('clients');
 
-  mc.innerHTML = `
-    <div class="section-header">
-      <h2>Clientes</h2>
-      <p>${cls.length} cliente(s) cadastrado(s)</p>
-    </div>
-    ${cls.length===0 ? `<div class="empty-state"><div class="empty-icon">👥</div><p>Nenhum cliente cadastrado. Toque + para adicionar.</p></div>` :
-      `<div class="card-list">${cls.map(c=>`
+  function render() {
+    mc.innerHTML=`
+      <div class="section-header"><h2>Clientes</h2><p>${cls.length} cliente(s)</p></div>
+      ${cls.length===0?`<div class="empty-state"><div class="empty-icon">👥</div><p>Nenhum cliente. Toque + para adicionar.</p></div>`:`
+      <div class="card-list">${cls.map(c=>`
         <div class="item-card">
           <div class="item-icon">👤</div>
           <div class="item-info">
             <div class="item-name">${c.name}</div>
-            <div class="item-meta">${[c.phone,c.email].filter(Boolean).join(' · ') || 'Sem contato cadastrado'}</div>
+            <div class="item-meta">${[c.phone,c.email].filter(Boolean).join(' · ')||'Sem contato'}</div>
           </div>
           <div class="item-actions">
-            <button class="btn btn-secondary btn-sm btn-icon" title="Editar" onclick="editClient('${c.id}')">✏️</button>
-            <button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="deleteClient('${c.id}')">🗑️</button>
+            <button class="btn btn-secondary btn-sm btn-icon" onclick="editClient('${c.id}')">✏️</button>
+            <button class="btn btn-danger btn-sm btn-icon" onclick="deleteClient('${c.id}')">🗑️</button>
           </div>
-        </div>`).join('')}</div>`}
-  `;
+        </div>`).join('')}</div>`}`;
+  }
 
-  addFab(() => openClientModal());
-
-  window.editClient = id => {
-    const c = cls.find(x=>x.id===id);
-    if (c) openClientModal(c);
-  };
+  addFab(()=>openClientModal(null,cls,render));
+  window.editClient = id => openClientModal(cls.find(x=>x.id===id),cls,render);
   window.deleteClient = id => {
-    if (!confirm('Excluir este cliente?')) return;
-    DB.set('clients', cls.filter(x=>x.id!==id));
-    toast('Cliente removido', 'error');
-    clients();
+    if (!confirm('Excluir cliente?')) return;
+    showLoader(true);
+    deleteItem('clients',id).then(()=>{
+      cls.splice(cls.findIndex(x=>x.id===id),1);
+      toast('Cliente removido','error'); render(); showLoader(false);
+    });
   };
+  render();
 }
 
-function openClientModal(client={}) {
-  const isEdit = !!client.id;
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.innerHTML = `
+function openClientModal(client, cls, onSave) {
+  const isEdit=!!client?.id;
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.innerHTML=`
     <div class="modal">
       <h3>${isEdit?'Editar':'Novo'} Cliente</h3>
       <div class="form-group"><label>Nome</label>
-        <input type="text" id="cm-name" placeholder="Nome do cliente" value="${client.name||''}">
+        <input type="text" id="cm-name" placeholder="Nome completo" value="${client?.name||''}">
       </div>
       <div class="form-group"><label>Telefone</label>
-        <input type="tel" id="cm-phone" placeholder="(00) 00000-0000" value="${client.phone||''}">
+        <input type="tel" id="cm-phone" placeholder="(00) 00000-0000" value="${client?.phone||''}">
       </div>
       <div class="form-group"><label>E-mail</label>
-        <input type="email" id="cm-email" placeholder="email@exemplo.com" value="${client.email||''}">
+        <input type="email" id="cm-email" placeholder="email@exemplo.com" value="${client?.email||''}">
       </div>
       <div class="form-group"><label>Observações</label>
-        <textarea id="cm-notes" placeholder="Anotações sobre o cliente...">${client.notes||''}</textarea>
+        <textarea id="cm-notes">${client?.notes||''}</textarea>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveClient('${client.id||''}')">Salvar</button>
+        <button class="btn btn-primary" onclick="saveClient('${client?.id||''}')">Salvar</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
-}
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
 
-window.saveClient = (editId) => {
-  const name  = document.getElementById('cm-name').value.trim();
-  const phone = document.getElementById('cm-phone').value.trim();
-  const email = document.getElementById('cm-email').value.trim();
-  const notes = document.getElementById('cm-notes').value.trim();
-  if (!name) { toast('Informe o nome do cliente', 'error'); return; }
-  const cls = DB.get('clients', []);
-  if (editId) {
-    const i = cls.findIndex(x=>x.id===editId);
-    if (i>-1) cls[i] = { ...cls[i], name, phone, email, notes };
-  } else {
-    cls.push({ id: genId(), name, phone, email, notes });
-  }
-  DB.set('clients', cls);
-  document.querySelector('.modal-overlay')?.remove();
-  toast(editId?'Cliente atualizado!':'Cliente cadastrado!', 'success');
-  clients();
-};
+  window.saveClient = async (editId) => {
+    const name  = document.getElementById('cm-name').value.trim();
+    const phone = document.getElementById('cm-phone').value.trim();
+    const email = document.getElementById('cm-email').value.trim();
+    const notes = document.getElementById('cm-notes').value.trim();
+    if (!name) { toast('Informe o nome','error'); return; }
+    showLoader(true);
+    if (editId) {
+      await updateItem('clients',editId,{name,phone,email,notes});
+      const i=cls.findIndex(x=>x.id===editId);
+      if(i>-1) cls[i]={...cls[i],name,phone,email,notes};
+    } else {
+      const ref=await addItem('clients',{name,phone,email,notes,createdAt:new Date()});
+      cls.push({id:ref.id,name,phone,email,notes});
+    }
+    overlay.remove();
+    toast(editId?'Cliente atualizado!':'Cliente cadastrado!','success');
+    onSave(); showLoader(false);
+  };
+}
 
 // ══════════════════════════════════════════════
 //  SETTINGS
 // ══════════════════════════════════════════════
-function settings() {
+async function settingsScreen() {
   const mc = document.getElementById('main-content');
-  const co = DB.get('company');
-  const op = DB.get('operator', '');
+  const data = await getCompanyData();
 
-  mc.innerHTML = `
+  mc.innerHTML=`
     <div class="section-header"><h2>Configurações</h2><p>Personalize seu sistema</p></div>
 
     <div class="settings-section">
       <h3>Identidade da Empresa</h3>
       <div class="avatar-upload">
-        <div class="avatar-preview" onclick="document.getElementById('settings-logo-input').click()">
-          ${co.logo ? `<img src="${co.logo}" alt="logo">` : '<span style="font-size:1.8rem">🏪</span>'}
+        <div class="avatar-preview" onclick="document.getElementById('s-logo-input').click()">
+          ${data.logo?`<img src="${data.logo}" alt="logo">`:'<span>🏪</span>'}
         </div>
-        <div>
-          <div style="font-weight:600;font-size:.9rem">Logo da Empresa</div>
-          <div style="font-size:.78rem;color:var(--text2);margin-top:4px">Toque para alterar</div>
-        </div>
+        <div><div style="font-weight:600;font-size:.9rem">Logo da Empresa</div>
+          <div style="font-size:.78rem;color:var(--text2);margin-top:4px">Toque para alterar</div></div>
       </div>
-      <input type="file" id="settings-logo-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event,'settings')">
-      <div class="form-group">
-        <label>Nome da Empresa</label>
-        <input type="text" id="s-company-name" value="${co.name}" placeholder="Nome da sua empresa">
+      <input type="file" id="s-logo-input" accept="image/*" style="display:none" onchange="uploadLogo(event)">
+      <div class="form-group"><label>Nome da Empresa</label>
+        <input type="text" id="s-name" value="${data.name||''}">
       </div>
-      <button class="btn btn-primary btn-full" onclick="saveCompany()">Salvar Nome</button>
+      <button class="btn btn-primary btn-full" onclick="saveName()">Salvar Nome</button>
     </div>
 
     <div class="settings-section">
-      <h3>Acesso</h3>
+      <h3>Acesso do Sistema</h3>
       <div class="form-group"><label>Usuário</label>
-        <input type="text" id="s-user" value="${co.user}">
+        <input type="text" id="s-user" value="${data.user||''}">
       </div>
-      <div class="form-group"><label>Nova Senha</label>
+      <div class="form-group"><label>Nova Senha de Acesso</label>
         <input type="password" id="s-pass" placeholder="Deixe em branco para manter">
       </div>
       <button class="btn btn-secondary btn-full" onclick="saveAccess()">Atualizar Acesso</button>
     </div>
 
     <div class="settings-section">
+      <h3>🔐 Senha do Gerente</h3>
+      <p style="font-size:.82rem;color:var(--text2);margin-bottom:12px">Protege: lucro, custo, estoque e edição de produtos.</p>
+      <div class="form-group"><label>Senha Atual do Gerente</label>
+        <input type="password" id="s-mgr-old" placeholder="••••••">
+      </div>
+      <div class="form-group"><label>Nova Senha do Gerente</label>
+        <input type="password" id="s-mgr-new" placeholder="••••••">
+      </div>
+      <button class="btn btn-warn btn-full" onclick="saveManagerPass()">Alterar Senha do Gerente</button>
+    </div>
+
+    <div class="settings-section">
       <h3>Operador do Dia</h3>
-      <div class="form-group">
-        <label>Nome do Responsável</label>
-        <input type="text" id="s-operator" value="${op}" placeholder="Ex: João Silva">
+      <div class="form-group"><label>Nome do Responsável</label>
+        <input type="text" id="s-operator" value="${data.operator||''}" placeholder="Ex: João Silva">
       </div>
       <button class="btn btn-secondary btn-full" onclick="saveOperator()">Definir Operador</button>
     </div>
 
     <div class="settings-section">
-      <h3>Zona de Perigo</h3>
-      <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius);padding:16px;margin-bottom:12px">
-        <div style="font-size:.85rem;color:var(--text2);margin-bottom:12px">Esta ação irá apagar <strong style="color:var(--accent3)">todos os dados</strong> do aplicativo: clientes, produtos, vendas e configurações. Esta ação é irreversível.</div>
+      <h3>⚠️ Zona de Perigo</h3>
+      <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius);padding:16px">
+        <div style="font-size:.85rem;color:var(--text2);margin-bottom:12px">Apaga <strong style="color:var(--accent3)">todos os dados</strong> do Firebase: clientes, produtos, vendas e configurações. Irreversível.</div>
         <button class="btn btn-danger btn-full" onclick="confirmNuke()">🗑️ Apagar Todos os Dados</button>
       </div>
     </div>
   `;
+
+  window.uploadLogo = (e) => {
+    const file=e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=async ev=>{
+      showLoader(true);
+      await saveCompanyData({logo:ev.target.result});
+      toast('Logo atualizado!','success');
+      const data2=await getCompanyData();
+      refreshTopBar(data2);
+      settingsScreen();
+      showLoader(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.saveName = async () => {
+    const name=document.getElementById('s-name').value.trim();
+    if(!name){toast('Informe o nome','error');return;}
+    showLoader(true);
+    await saveCompanyData({name});
+    const data2=await getCompanyData();
+    refreshTopBar(data2);
+    toast('Nome atualizado!','success');
+    showLoader(false);
+  };
+
+  window.saveAccess = async () => {
+    const user=document.getElementById('s-user').value.trim();
+    const pass=document.getElementById('s-pass').value;
+    if(!user){toast('Informe o usuário','error');return;}
+    showLoader(true);
+    const upd={user};
+    if(pass) upd.pass=pass;
+    await saveCompanyData(upd);
+    toast('Acesso atualizado!','success');
+    showLoader(false);
+  };
+
+  window.saveManagerPass = async () => {
+    const oldP=document.getElementById('s-mgr-old').value;
+    const newP=document.getElementById('s-mgr-new').value;
+    if(!newP){toast('Informe a nova senha','error');return;}
+    showLoader(true);
+    const d=await getCompanyData();
+    if(oldP!==(d.managerPass||'1234')){toast('Senha atual incorreta','error');showLoader(false);return;}
+    await saveCompanyData({managerPass:newP});
+    toast('Senha do gerente alterada!','success');
+    showLoader(false);
+  };
+
+  window.saveOperator = async () => {
+    const op=document.getElementById('s-operator').value.trim();
+    showLoader(true);
+    await saveCompanyData({operator:op});
+    const d=await getCompanyData();
+    refreshTopBar(d);
+    toast(op?'Operador definido: '+op:'Operador removido','success');
+    showLoader(false);
+  };
+
+  window.confirmNuke = () => {
+    requireManager(()=>{
+      const overlay=document.createElement('div');
+      overlay.className='modal-overlay';
+      overlay.innerHTML=`
+        <div class="modal">
+          <h3 style="color:var(--accent3)">⚠️ Apagar Tudo?</h3>
+          <p style="font-size:.85rem;color:var(--text2);margin-bottom:16px">Esta ação apaga todos os dados do servidor. Irreversível.</p>
+          <div class="form-group"><label>Digite APAGAR para confirmar</label>
+            <input type="text" id="nuke-input" placeholder="APAGAR">
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+            <button class="btn btn-danger" onclick="doNuke()">Apagar Tudo</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+    });
+  };
+
+  window.doNuke = async () => {
+    if(document.getElementById('nuke-input')?.value!=='APAGAR'){toast('Digite APAGAR','error');return;}
+    showLoader(true);
+    // Delete all subcollections
+    const colls=['clients','products','sales'];
+    for(const c of colls){
+      const snap=await getDocs(companyColl(c));
+      await Promise.all(snap.docs.map(d=>deleteDoc(d.ref)));
+    }
+    await saveCompanyData({name:'Minha Empresa',logo:'',operator:'',managerPass:'1234'});
+    localStorage.removeItem('gp_session');
+    COMPANY_ID=null;
+    SESSION={managerUnlocked:false};
+    document.querySelector('.modal-overlay')?.remove();
+    document.getElementById('app-shell').classList.add('hidden');
+    document.getElementById('screen-login').classList.remove('hidden');
+    document.getElementById('login-user').value='';
+    document.getElementById('login-pass').value='';
+    toast('Dados apagados','error');
+    showLoader(false);
+  };
 }
 
-window.saveCompany = () => {
-  const name = document.getElementById('s-company-name').value.trim();
-  if (!name) { toast('Informe o nome da empresa', 'error'); return; }
-  const co = DB.get('company'); co.name = name; DB.set('company', co);
-  refreshTopBar(); toast('Nome atualizado!', 'success');
-};
+// ── BOOT ──
+boot();
 
-window.saveAccess = () => {
-  const user = document.getElementById('s-user').value.trim();
-  const pass = document.getElementById('s-pass').value;
-  if (!user) { toast('Informe o usuário', 'error'); return; }
-  const co = DB.get('company'); co.user = user;
-  if (pass) co.pass = pass;
-  DB.set('company', co);
-  toast('Acesso atualizado!', 'success');
-};
-
-window.saveOperator = () => {
-  const op = document.getElementById('s-operator').value.trim();
-  DB.set('operator', op);
-  refreshTopBar();
-  toast(op ? 'Operador definido: ' + op : 'Operador removido', 'success');
-};
-
-window.confirmNuke = () => {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.innerHTML = `
-    <div class="modal">
-      <h3 style="color:var(--accent3)">⚠️ Apagar Tudo?</h3>
-      <p style="font-size:.9rem;color:var(--text2);margin-bottom:20px">Você está prestes a apagar <strong style="color:var(--text)">todos os dados</strong> permanentemente. Clientes, produtos, vendas e configurações serão removidos. Não é possível desfazer.</p>
-      <div class="form-group"><label>Digite "APAGAR" para confirmar</label>
-        <input type="text" id="nuke-confirm" placeholder="APAGAR">
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-        <button class="btn btn-danger" onclick="doNuke()">Apagar Tudo</button>
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
-};
-
-window.doNuke = () => {
-  const val = document.getElementById('nuke-confirm').value;
-  if (val !== 'APAGAR') { toast('Digite APAGAR para confirmar', 'error'); return; }
-  DB.nuke();
-  document.querySelector('.modal-overlay')?.remove();
-  initDefaults();
-  toast('Todos os dados foram apagados', 'error');
-  // go back to login
-  document.getElementById('app-shell').classList.add('hidden');
-  document.getElementById('screen-login').classList.remove('hidden');
-  document.getElementById('login-user').value = '';
-  document.getElementById('login-pass').value = '';
-  refreshTopBar();
-};
-
-// ══════════════════════════════════════════════
-//  FAB HELPER
-// ══════════════════════════════════════════════
-function addFab(onClick) {
-  const old = document.getElementById('main-fab');
-  if (old) old.remove();
-  const fab = document.createElement('button');
-  fab.id = 'main-fab'; fab.className = 'fab'; fab.innerHTML = '+';
-  fab.onclick = onClick;
-  document.body.appendChild(fab);
+// Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
-
-// ══════════════════════════════════════════════
-//  BOOT
-// ══════════════════════════════════════════════
-initDefaults();
-refreshTopBar();
 </script>
 </body>
 </html>
