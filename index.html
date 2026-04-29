@@ -501,31 +501,32 @@ window.doLogin = async () => {
   if (!user||!pass) { toast('Preencha usuário e senha','error'); return; }
   showLoader(true);
   try {
-    // Search companies collection for matching credentials
     const snap = await getDocs(collection(db,'companies'));
+
+    // Primeira vez — banco vazio, cria empresa inicial
+    if (snap.empty) {
+      const ref = await addDoc(collection(db,'companies'), {
+        name: 'Minha Empresa', logo: '', user, pass,
+        operator: '', managerPass: '1234', createdAt: new Date()
+      });
+      COMPANY_ID = ref.id;
+      localStorage.setItem('gp_session', COMPANY_ID);
+      const data = await getCompanyData();
+      showApp(data); showLoader(false); return;
+    }
+
+    // Banco já tem empresas — só autentica, NUNCA cria novo
     let found = null;
     snap.forEach(d => {
       const data = d.data();
       if (data.user === user && data.pass === pass) { found = {id:d.id,...data}; }
     });
+
     if (!found) {
-      // Create new company on first login
-      if (snap.empty || user === 'admin') {
-        // Check if admin company exists
-        const existing = snap.docs.find(d=>d.data().user===user);
-        if (!existing) {
-          const ref = await addDoc(collection(db,'companies'), {
-            name: 'Minha Empresa', logo: '', user, pass,
-            operator: '', managerPass: '1234', createdAt: new Date()
-          });
-          COMPANY_ID = ref.id;
-          localStorage.setItem('gp_session', COMPANY_ID);
-          const data = await getCompanyData();
-          showApp(data); showLoader(false); return;
-        }
-      }
-      toast('Usuário ou senha incorretos','error'); showLoader(false); return;
+      toast('Usuário ou senha incorretos','error');
+      showLoader(false); return;
     }
+
     COMPANY_ID = found.id;
     localStorage.setItem('gp_session', COMPANY_ID);
     showApp(found);
